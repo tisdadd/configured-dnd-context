@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 
 import ConfiguredDndContext from '../ConfiguredDndContext'
 
@@ -258,10 +259,13 @@ function ConfiguredDndProvider (props: propTypes) {
       <ConfiguredDndContext.Provider value={value}>
         {children}
       </ConfiguredDndContext.Provider>
-      <DragOverlay {...dragOverlayProps}>
-        {active?.data?.current?.renderOverlayItem &&
-          active?.data?.current?.renderOverlayItem()}
-      </DragOverlay>
+      {createPortal(
+        <DragOverlay {...dragOverlayProps}>
+          {active?.data?.current?.renderOverlayItem &&
+            active?.data?.current?.renderOverlayItem()}
+        </DragOverlay>,
+        document.body
+      )}
     </DndContext>
   )
 }
