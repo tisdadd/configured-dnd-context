@@ -196,10 +196,10 @@ dndAllowableDropFilter?: ({containerId, containerData}: {containerId: UniqueIden
 /** What to do when this item moves over another - it is a hook into the DndContext onDragOver with this item
  * being the active one
  */
-onDragOver: (dragOverEvent: DragOverEvent)=>void
+onDragOver?: (dragOverEvent: DragOverEvent)=>void
 /** What to do when this item is dropped - it is a hook into the DndContext onDragEnd with this item 
  * being the active one */
-onDragEnd: (dragEndEvent: DragEndEvent)=>void
+onDragEnd?: (dragEndEvent: DragEndEvent)=>void
 ```
 
 For the `useDroppable` hook data, there are two things added as well
@@ -208,9 +208,9 @@ For the `useDroppable` hook data, there are two things added as well
 /** What to do when this item has another move over it - it is a hook into the DndContext onDragOver with this item
  * being the over one
  */
-onDragOver: (dragOverEvent: DragOverEvent)=>void
+onDragOver?: (dragOverEvent: DragOverEvent)=>void
 /** What to do when this item is dropped - it is a hook into the DndContext onDragEnd with this item being the over one */
-onDrop: (dragEndEvent: DragEndEvent)=>void
+onDrop?: (dragEndEvent: DragEndEvent)=>void
 ```
 
 ### Play with it locally before deciding to install it in a project

@@ -4,4 +4,4 @@
 
 Github workflows for this project.
 
-- build-and-test.yml - Full workflow for building after testing.
+- build-test-and-publish.yml - Full workflow for building, testing, and publishing.
