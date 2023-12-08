@@ -1,11 +1,17 @@
 import React from 'react'
 
+type SquareProps = {
+  style?: object
+  setNodeRef?: null | ((node: HTMLElement | null) => void)
+  extraText?: string
+}
+
 const Square = ({
   style = {},
   setNodeRef = null,
   extraText = '',
   ...props
-}) => (
+}: React.PropsWithChildren<SquareProps>) => (
   <div
     style={{
       width: '10ch',

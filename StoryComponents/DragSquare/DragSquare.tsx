@@ -81,9 +81,24 @@ const DragSquare = ({
   }
 
   // dnd-kit draggable stuff
-  const { attributes, listeners, setNodeRef, transform, transition } = sortable
-    ? useSortable(hookParams)
-    : useDraggable(hookParams)
+
+  // was a destructure but typescript didn't like
+  let attributes, listeners, setNodeRef, transform, transition
+
+  if (sortable) {
+    const hookBase = useSortable(hookParams)
+    attributes = hookBase.attributes
+    listeners = hookBase.listeners
+    setNodeRef = hookBase.setNodeRef
+    transform = hookBase.transform
+    transition = hookBase.transition
+  } else {
+    const hookBase = useDraggable(hookParams)
+    attributes = hookBase.attributes
+    listeners = hookBase.listeners
+    setNodeRef = hookBase.setNodeRef
+    transform = hookBase.transform
+  }
 
   const styleBaseAsActive =
     active?.id === id || (active?.id && active?.id === copiedFromId)

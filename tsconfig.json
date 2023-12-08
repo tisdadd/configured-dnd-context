@@ -12,11 +12,25 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "outDir": "lib",
     "incremental": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "sourceMap": true,
+    "declaration": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
-  "exclude": ["node_modules"]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "exclude": [
+    "node_modules",
+    ".storybook",
+    "storybook-static",
+    "e2eBaseTests",
+    "**/*.test.tsx",
+    "**/*.test.ts",
+    "**/*.e2e.tsx",
+    "**/*.e2e.ts",
+    "**/*.stories.tsx",
+    "**/*.stories.ts",
+    "jest.config.js",
+    "jest.setup.js",
+    "playwright.config.ts"
+  ]
 }
