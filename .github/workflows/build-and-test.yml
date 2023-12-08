@@ -1,0 +1,35 @@
+name: Build and Test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit Tests
+        run: npm run jest:ci
+
+      - name: Build Storybook
+        run: npm run storybook:build
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Serve Storybook and Run Smoke and Playwright Tests
+        run: |
+          npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" \
+            "npx http-server storybook-static --port 6006 --silent" \
+            "npx wait-on tcp:6006 && npm run storybook:test && npm run playwright"
+
+      - name: Compile library
+        run: npm run build

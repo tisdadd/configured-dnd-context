@@ -242,7 +242,7 @@ This was pulled out of a larger project I have been working on, as I realized it
 
 ## Files and Folders
 
-- [.github/](.github/readme) - Files for interactions with github
+- [.github/](.github/readme_github.md) - Files for interactions with github
 - [.storybook/](.storybook/readme.md) - The storybook configuration files.
 - [ConfiguredDndProvider/](ConfiguredDndProvider/readme.md) - A context provider for the ConfiguredDnd context
 - [e2eBaseTests/](e2eBaseTests/readme.md) - Base tests for the e2e, as the basic stories and functionality among the components tested are the same.

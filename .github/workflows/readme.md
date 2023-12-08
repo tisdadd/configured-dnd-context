@@ -1,7 +1,7 @@
-> [Up One Level](../readme.md)
+> [Up One Level](../readme_github.md)
 
 # workflows
 
 Github workflows for this project.
 
-- playwright.yml - Run playwright tests
+- build-and-test.yml - Full workflow for building after testing.
