@@ -60,6 +60,5 @@ jobs:
       - name: Publish Library
         uses: JS-DevTools/npm-publish@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          registry: 'https://npm.pkg.github.com'
+          token: ${{ secrets.NPM_PUBLISHING_TOKEN }}
         if: github.event_name != 'pull_request'

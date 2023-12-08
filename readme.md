@@ -4,6 +4,8 @@ A context with a provider, hook, and Higher Order Component meant to make it sim
 
 ## How to Use?
 
+Check out [the storybook](https://tisdadd.github.io/configured-dnd-context/) for some quick ideas, or below for more detail.
+
 ### In a project
 
 #### Install Dependency
