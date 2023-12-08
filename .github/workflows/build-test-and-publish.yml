@@ -6,6 +6,7 @@ on:
     branches: [main]
 permissions:
   id-token: write
+  pages: write
 jobs:
   build-test-and-publish:
     timeout-minutes: 60
