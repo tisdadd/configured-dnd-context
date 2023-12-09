@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build, Test, and Publish
 on:
   push:
     branches: [main]
@@ -8,7 +8,7 @@ permissions:
   id-token: write
   pages: write
 jobs:
-  build-test-and-publish:
+  build-and-test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -37,28 +37,52 @@ jobs:
             "npx http-server storybook-static --port 6006 --silent" \
             "npx wait-on tcp:6006 && npm run storybook:test && npm run playwright"
 
-      # Publish storybook to pages
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        if: github.event_name != 'pull_request'
-
-      - name: Upload artifact
+      - name: Upload Storybook Artifact
         uses: actions/upload-pages-artifact@v2
         with:
           path: './storybook-static'
-        if: github.event_name != 'pull_request'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v3
-        if: github.event_name != 'pull_request'
 
-      # Compile and publish the library
+      # Compile Library
       - name: Compile library
         run: npm run build
         if: github.event_name != 'pull_request'
 
-      - name: Publish Library
+      - name: Archive Production Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: compiled-library
+          path: |
+            lib
+            readme.md
+            package.json
+            LICENSE
+
+  publish:
+    timeout-minutes: 20
+    needs: build-and-test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+    
+    # Publish the build
+    - name: Download the Built Artifact
+      uses: actions/download-artifact@v3
+        with:
+          name: compiled-library
+
+    - name: Publish Library using Built Artifact
         uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_PUBLISHING_TOKEN }}
+
+    # Publish storybook to pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v3
         if: github.event_name != 'pull_request'
