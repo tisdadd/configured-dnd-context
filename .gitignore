@@ -44,3 +44,4 @@ storybook-static
 
 # library output
 lib
+dist

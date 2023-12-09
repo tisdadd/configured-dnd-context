@@ -267,6 +267,7 @@ This was pulled out of a larger project I have been working on, as I realized it
 - [package.json](https://docs.npmjs.com/cli/v9/configuring-npm/package-json) - Describes project, including dependencies, scripts, ect. A good starting point when looking at any node project.
 - playwright.config.ts - PlayWright configuration for end to end tests.
 - [tsconfig.json](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html) - Typescript configurations.
+- [tsup.config.ts](https://tsup.egoist.dev/#using-custom-configuration) - Easy publishing of typesciprt
 
 ## readme.md instead of README.md?
 
