@@ -3,6 +3,7 @@ import insertAtIndex from '../insertAtIndex'
 import { UniqueIdentifier, Active } from '@dnd-kit/core'
 
 import NON_GROUPED_ITEMS_GROUP_NAME from '../NON_GROUPED_ITEMS_GROUP_NAME'
+import ItemToGroupAndIndex from '../ItemToGroupAndIndex.type'
 
 type moveBetweenContainersInput = {
   items: { [key: UniqueIdentifier]: any[] }
@@ -29,7 +30,7 @@ const moveBetweenContainers = ({
     })
   }
 
-  const toReturn = {
+  const newItemGroups = {
     ...items,
     [overContainer]: insertAtIndex(
       items[overContainer],
@@ -39,7 +40,21 @@ const moveBetweenContainers = ({
     [activeContainer]: removeAtIndex(items[activeContainer], activeIndex)
   }
 
-  return toReturn
+  let newItemsToGroupAndIndex: ItemToGroupAndIndex = {}
+  // replace items after this one in overContainer
+  for (let i = overIndex; i < newItemGroups[overContainer].length; i++) {
+    newItemsToGroupAndIndex[newItemGroups[overContainer][i].id] = {
+      [overContainer]: i
+    }
+  }
+  // replace items after this one
+  for (let i = activeIndex; i < newItemGroups[activeContainer].length; i++) {
+    newItemsToGroupAndIndex[newItemGroups[activeContainer][i].id] = {
+      [activeContainer]: i
+    }
+  }
+
+  return { newItemGroups, newItemsToGroupAndIndex }
 }
 
 export default moveBetweenContainers

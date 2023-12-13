@@ -10,7 +10,8 @@ import {
   ITEM_3_BASE_ID,
   getBaseItems,
   baseGetUniqueId,
-  BASE_UNIQUE_ID
+  BASE_UNIQUE_ID,
+  itemGroupsToMapping
 } from '../testBasics'
 
 describe('copyBetweenContainers', () => {
@@ -26,6 +27,8 @@ describe('copyBetweenContainers', () => {
     })
 
     const expected = getBaseItems()
+    const baseItemMapping = itemGroupsToMapping(expected)
+
     expected[FIRST_CONTAINER_ID][0] = {
       ...getBaseItems()[FIRST_CONTAINER_ID][0],
       id: BASE_UNIQUE_ID,
@@ -33,10 +36,19 @@ describe('copyBetweenContainers', () => {
       copiedToContainer: SECOND_CONTAINER_ID
     }
     expected[SECOND_CONTAINER_ID].push({
-      ...getBaseItems()[FIRST_CONTAINER_ID][0]
+      ...getBaseItems()[FIRST_CONTAINER_ID][0],
+      copiedFromContainer: FIRST_CONTAINER_ID,
+      copiedFromId: BASE_UNIQUE_ID
     })
 
-    expect(result).toStrictEqual(expected)
+    expect(result.newItemGroups).toStrictEqual(expected)
+
+    const expectedItemMapping = itemGroupsToMapping(result.newItemGroups)
+
+    expect({
+      ...baseItemMapping,
+      ...result.newItemsToGroupAndIndex
+    }).toEqual(expectedItemMapping) // using toEqual, as allowing setting to undefined this way
   })
 
   it('Can copy from ungrouped container', () => {
@@ -58,9 +70,11 @@ describe('copyBetweenContainers', () => {
       copiedToContainer: SECOND_CONTAINER_ID
     }
     expected[SECOND_CONTAINER_ID].push({
-      ...getBaseItems()[NON_GROUPED_ITEMS_GROUP_NAME][0]
+      ...getBaseItems()[NON_GROUPED_ITEMS_GROUP_NAME][0],
+      copiedFromId: BASE_UNIQUE_ID,
+      copiedFromContainer: NON_GROUPED_ITEMS_GROUP_NAME
     })
 
-    expect(result).toStrictEqual(expected)
+    expect(result.newItemGroups).toStrictEqual(expected)
   })
 })

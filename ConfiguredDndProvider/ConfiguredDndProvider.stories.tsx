@@ -243,7 +243,6 @@ export const SortableContainerWithDroppableContainer = () => {
 }
 
 export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
-  const [sample, setSample] = useState<number>(1)
   const [moved, setMoved] = useState<boolean>(false)
 
   return (
@@ -255,13 +254,16 @@ export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
               <DragSquare
                 sortable={true}
                 dndCopy={true}
-                extraText={`${sample}`}
+                extraText={`${value.getItem('DragCopy')?.item || 1}`}
                 value={value}
                 id='DragCopy'
                 selfContained={true}
                 itemDataFunction={() => ({
                   onDragEnd: () => {
-                    setSample(sample + 1)
+                    value.updateItem(
+                      'DragCopy',
+                      Number(value.getItem('DragCopy')?.item || 1) + 1
+                    )
                   }
                 })}
               />

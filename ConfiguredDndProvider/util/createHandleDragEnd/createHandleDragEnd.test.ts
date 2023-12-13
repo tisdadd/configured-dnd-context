@@ -15,8 +15,10 @@ import {
   ITEM_3_BASE_ID,
   getBaseItems,
   baseGetUniqueId,
-  BASE_UNIQUE_ID
+  BASE_UNIQUE_ID,
+  itemGroupsToMapping
 } from '../testBasics'
+import ItemToGroupAndIndex from '../ItemToGroupAndIndex.type'
 
 type onDragEndSignature = (dragEndEvent: DragEndEvent) => void
 type getItemGroupDataSignature = (id: UniqueIdentifier) => any
@@ -34,22 +36,47 @@ describe('createHandleDragEnd', () => {
   let setItemGroups: Dispatch<SetStateAction<ItemGroups>>
   let setActive: Dispatch<SetStateAction<Active | null>>
   let getItemGroupData: getItemGroupDataSignature
+  let setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
+  let itemsToGroupMapping: ItemToGroupAndIndex
+  let testItems
 
   beforeEach(() => {
-    setItemGroups = jest.fn()
+    testItems = getBaseItems()
+    itemsToGroupMapping = itemGroupsToMapping(testItems)
+    setItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
+      setItemGroupsFunction => {
+        if (typeof setItemGroupsFunction === 'function') {
+          testItems = setItemGroupsFunction(testItems)
+        }
+      }
+    )
+
+    // setItemGroups = jest.fn()
     setActive = jest.fn()
+    setItemsToGroupMapping = jest.fn<
+      Dispatch<SetStateAction<ItemToGroupAndIndex>>
+    >(setItemsToGroupMappingFunction => {
+      if (typeof setItemsToGroupMappingFunction === 'function') {
+        let newMappings = setItemsToGroupMappingFunction(itemsToGroupMapping)
+        Object.entries(newMappings).forEach(([key, value]) => {
+          itemsToGroupMapping[key] = value
+        })
+      }
+    })
     getItemGroupData = jest.fn<getItemGroupDataSignature>()
   })
 
   it('Calls setActive with null', () => {
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups,
+      setItemGroups: jest.fn(),
       setActive,
       dragStartContainerId: FIRST_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -60,13 +87,15 @@ describe('createHandleDragEnd', () => {
   it('Sets document body cursor to passed in cursor', () => {
     const cursor = 'grabbing'
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups,
+      setItemGroups: jest.fn(),
       setActive,
       dragStartContainerId: FIRST_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor: cursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -87,13 +116,15 @@ describe('createHandleDragEnd', () => {
     }
 
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups,
+      setItemGroups: jest.fn(),
       setActive,
       dragStartContainerId: FIRST_CONTAINER_ID,
       active,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -114,13 +145,15 @@ describe('createHandleDragEnd', () => {
     }
 
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups,
+      setItemGroups: jest.fn(),
       setActive,
       dragStartContainerId: FIRST_CONTAINER_ID,
       active,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -132,13 +165,15 @@ describe('createHandleDragEnd', () => {
     const onDrop = jest.fn<onDragEndSignature>()
 
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups,
+      setItemGroups: jest.fn(),
       setActive,
       dragStartContainerId: FIRST_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragEnd({
@@ -162,33 +197,24 @@ describe('createHandleDragEnd', () => {
   })
 
   it('Appropriately just moves items if in same container', () => {
-    let testSetItemGroupsSpy
     const id = 'Extra_Item_Id'
 
-    let testItems = getBaseItems()
     testItems[SECOND_CONTAINER_ID].push({
       ...testItems[FIRST_CONTAINER_ID][0],
       id
     })
     testItems[SECOND_CONTAINER_ID].push()
 
-    let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
-          testItems = testSetItemGroupsSpy(testItems)
-        }
-      }
-    )
-
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups: testSetItemGroups,
+      setItemGroups,
       setActive,
       dragStartContainerId: SECOND_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping: itemGroupsToMapping(testItems)
     })
 
     handleDragEnd({
@@ -225,36 +251,27 @@ describe('createHandleDragEnd', () => {
     const [first, second] = expectedItems[SECOND_CONTAINER_ID]
     expectedItems[SECOND_CONTAINER_ID] = [second, first]
 
-    expect(testSetItemGroupsSpy).toHaveLastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
   })
 
   it('Or moves to the right index in a new container', () => {
-    let testSetItemGroupsSpy
     const id = 'Extra_Item_Id'
 
-    let testItems = getBaseItems()
     testItems[SECOND_CONTAINER_ID].push({
       ...testItems[FIRST_CONTAINER_ID][0],
       id
     })
 
-    let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
-          testItems = testSetItemGroupsSpy(testItems)
-        }
-      }
-    )
-
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups: testSetItemGroups,
+      setItemGroups,
       setActive,
       dragStartContainerId: SECOND_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping: itemGroupsToMapping(testItems)
     })
 
     handleDragEnd({
@@ -288,31 +305,20 @@ describe('createHandleDragEnd', () => {
       id
     })
 
-    expect(testSetItemGroupsSpy).toHaveLastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
   })
 
   it('Copying to the new container if needed', () => {
-    let testSetItemGroupsSpy
     const id = 'Extra_Item_Id'
     const uniqueId = 'New Id'
 
-    let testItems = getBaseItems()
     testItems[SECOND_CONTAINER_ID].push({
       ...testItems[FIRST_CONTAINER_ID][0],
       id
     })
 
-    let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
-          testItems = testSetItemGroupsSpy(testItems)
-        }
-      }
-    )
-
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups: testSetItemGroups,
+      setItemGroups,
       setActive,
       dragStartContainerId: SECOND_CONTAINER_ID,
       active: {
@@ -325,7 +331,9 @@ describe('createHandleDragEnd', () => {
       },
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => uniqueId
+      getUniqueId: () => uniqueId,
+      setItemsToGroupMapping,
+      itemsToGroupMapping: itemGroupsToMapping(testItems)
     })
 
     handleDragEnd({
@@ -364,15 +372,15 @@ describe('createHandleDragEnd', () => {
       id
     })
 
-    expect(testSetItemGroupsSpy).toHaveLastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
   })
 
   it('Cleans up data from the move when copy is enabled', () => {
-    let testSetItemGroupsSpy
     const id = 'CopiedId'
-    let testItems = getBaseItems()
     testItems[SECOND_CONTAINER_ID].push({
-      ...testItems[FIRST_CONTAINER_ID][0]
+      ...testItems[FIRST_CONTAINER_ID][0],
+      copiedFromContainer: FIRST_CONTAINER_ID,
+      copiedFromId: id
     })
     testItems[FIRST_CONTAINER_ID][0] = {
       ...testItems[FIRST_CONTAINER_ID][0],
@@ -382,18 +390,8 @@ describe('createHandleDragEnd', () => {
     }
     testItems[SECOND_CONTAINER_ID].push()
 
-    let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
-
-          testItems = testSetItemGroupsSpy(testItems)
-        }
-      }
-    )
-
     const handleDragEnd = createHandleDragEnd({
-      setItemGroups: testSetItemGroups,
+      setItemGroups,
       setActive,
       dragStartContainerId: FIRST_CONTAINER_ID,
       active: {
@@ -406,18 +404,25 @@ describe('createHandleDragEnd', () => {
       },
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping: itemGroupsToMapping(testItems)
     })
 
     handleDragEnd({
       active: {
-        id: FIRST_CONTAINER_ID,
+        id: ITEM_1_BASE_ID,
         data: {
-          current: {}
+          current: {
+            sortable: {
+              containerId: SECOND_CONTAINER_ID,
+              index: 1
+            }
+          }
         }
       },
       over: {
-        id: FIRST_CONTAINER_ID,
+        id: SECOND_CONTAINER_ID,
         data: {
           current: {}
         }
@@ -430,6 +435,6 @@ describe('createHandleDragEnd', () => {
       id
     })
 
-    expect(testSetItemGroupsSpy).toHaveLastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
   })
 })

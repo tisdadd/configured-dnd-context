@@ -95,12 +95,18 @@ type removeItemOfId(id: UniqueIdentifier)=>void
 type registerNonGroupedItem(id: UniqueIdentifier, item: any)=>void
 
 /** Get the non-grouped item by id */
-type getNonGroupedItem(id: UniqueIdentifier)=>any
+type getNonGroupedItem(id: UniqueIdentifier)=> ContainerItem
 
 /** The currently active element, according to react-dnd
  * aka, what is being dragged - active.id is useful to compare with for styling purposes
  */
 active: Active | null
+
+/** Update any item data by id, rather than doing a full set or re-registering */
+type updateItem: (id: UniqueIdentifier, item: any) => void
+
+/** Get any item by id  */
+type getItem: (id: UniqueIdentifier) => ContainerItem
 ```
 
 #### useConfiguredDnd Hook

@@ -6,6 +6,8 @@ import copyBetweenContainers from '../copyBetweenContainers'
 
 import NON_GROUPED_ITEMS_GROUP_NAME from '../NON_GROUPED_ITEMS_GROUP_NAME'
 import ItemGroups from '../ItemGroups.type'
+import ItemToGroupAndIndex from '../ItemToGroupAndIndex.type'
+import copyFix from '../copyFix'
 
 type createHandleDragEndInput = {
   setItemGroups: Dispatch<SetStateAction<ItemGroups>>
@@ -15,6 +17,8 @@ type createHandleDragEndInput = {
   getItemGroupData: (id: UniqueIdentifier) => any
   defaultBodyCursor: string
   getUniqueId: () => UniqueIdentifier
+  setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
+  itemsToGroupMapping: ItemToGroupAndIndex
 }
 
 const createHandleDragEnd = ({
@@ -24,11 +28,22 @@ const createHandleDragEnd = ({
   active: originalActive,
   getItemGroupData,
   defaultBodyCursor,
-  getUniqueId
+  getUniqueId,
+  setItemsToGroupMapping,
+  itemsToGroupMapping
 }: createHandleDragEndInput) => {
   const handleDragEnd = (dragEndEvent: DragEndEvent) => {
     setActive(null)
     const { active, over } = dragEndEvent
+
+    if (originalActive?.data?.current?.dndCopy) {
+      copyFix({
+        setItemGroups,
+        itemsToGroupMapping,
+        setItemsToGroupMapping,
+        active
+      })
+    }
 
     if (originalActive?.data.current?.onDragEnd) {
       originalActive.data.current?.onDragEnd(dragEndEvent)
@@ -41,47 +56,6 @@ const createHandleDragEnd = ({
     if (document) {
       document.body.style.cursor = defaultBodyCursor
     }
-
-    const copyFix = () => {
-      setItemGroups(itemGroups => {
-        let newItems = { ...itemGroups }
-
-        let finalContainerId = newItems[dragStartContainerId || '']
-          ? dragStartContainerId || ''
-          : NON_GROUPED_ITEMS_GROUP_NAME
-        if (newItems[finalContainerId]) {
-          let copyContainer: UniqueIdentifier | undefined
-          let copyId: UniqueIdentifier
-          let finalId: UniqueIdentifier
-          // quick clean up function for if we attached excess data during dragging
-          // or copied data
-          newItems[finalContainerId] = newItems[finalContainerId].map(
-            ({ id, item, copiedFromId, copiedToContainer, ...rest }) => {
-              if (copiedFromId && copiedToContainer) {
-                copyContainer = copiedToContainer
-                copyId = copiedFromId
-                finalId = id
-              }
-              return { id: copiedFromId || id, item, ...rest }
-            }
-          )
-
-          if (copyContainer && newItems[copyContainer]) {
-            newItems[copyContainer] = newItems[copyContainer].map(
-              ({ id, item, copiedFromId, copiedToContainer, ...rest }) => {
-                if (id === copyId) {
-                  return { id: finalId, item, ...rest }
-                }
-                return { id, item, ...rest }
-              }
-            )
-          }
-        }
-
-        return newItems
-      })
-    }
-    copyFix()
 
     if (!over) {
       return
@@ -130,19 +104,38 @@ const createHandleDragEnd = ({
               overIndex
             )
           }
+          // going to reset the mappings for group starting at lower of the two indices
+          let newItemsToGroupAndIndex: ItemToGroupAndIndex = {}
+          let startIndex = activeIndex > overIndex ? overIndex : activeIndex
+          for (let i = startIndex; i < newItems[overContainer].length; i++) {
+            newItemsToGroupAndIndex[newItems[overContainer][i].id] = {
+              [overContainer]: i
+            }
+          }
+
+          setItemsToGroupMapping(priorItemsToGroupMapping => ({
+            ...priorItemsToGroupMapping,
+            ...newItemsToGroupAndIndex
+          }))
         } else {
           if (originalActive?.data?.current?.dndCopy) {
-            newItems = copyBetweenContainers({
+            const baseCopy = copyBetweenContainers({
               items: itemGroups,
               activeContainer,
               activeIndex,
               overContainer,
               overIndex,
               active,
-              getUniqueId
+              getUniqueId,
+              idStays: true
             })
+            newItems = baseCopy.newItemGroups
+            setItemsToGroupMapping(priorItemsToGroupMapping => ({
+              ...priorItemsToGroupMapping,
+              ...baseCopy.newItemsToGroupAndIndex
+            }))
           } else {
-            newItems = moveBetweenContainers({
+            let movedItems = moveBetweenContainers({
               items: itemGroups,
               activeContainer,
               activeIndex,
@@ -150,6 +143,11 @@ const createHandleDragEnd = ({
               overIndex,
               active
             })
+            newItems = movedItems.newItemGroups
+            setItemsToGroupMapping(priorItemsToGroupMapping => ({
+              ...priorItemsToGroupMapping,
+              ...movedItems.newItemsToGroupAndIndex
+            }))
           }
         }
 
@@ -157,7 +155,7 @@ const createHandleDragEnd = ({
       })
     }
 
-    copyFix()
+    // copyFix()
   }
   return handleDragEnd
 }

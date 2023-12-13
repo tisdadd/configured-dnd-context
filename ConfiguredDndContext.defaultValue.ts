@@ -52,5 +52,16 @@ export default {
       `Please wrap in ConfiguredDndProvider for real functionality - received ${id}`
     )
     return { id: '123', item: 'test' } as ContainerItem | null
+  },
+  updateItem: (id: UniqueIdentifier, item: any) => {
+    console.log(
+      `Please wrap in ConfiguredDndProvider for real functionality - received ${id}, ${item}`
+    )
+  },
+  getItem: (id: UniqueIdentifier) => {
+    console.log(
+      `Please wrap in ConfiguredDndProvider for real functionality - received ${id}`
+    )
+    return { id: '123', item: 'test' } as ContainerItem | null
   }
 }

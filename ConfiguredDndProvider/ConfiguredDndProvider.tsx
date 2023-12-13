@@ -31,6 +31,9 @@ import ItemGroups from './util/ItemGroups.type'
 
 import RegisterItemGroupTypeFunctionParameters from './util/RegisterItemGroupTypeFunctionParameters.type'
 
+import ItemToGroupAndIndex from './util/ItemToGroupAndIndex.type'
+import replaceAtIndex from './util/replaceAtIndex'
+
 function ConfiguredDndProvider (props: propTypes) {
   const {
     children,
@@ -59,6 +62,9 @@ function ConfiguredDndProvider (props: propTypes) {
   const [itemGroupsData, setItemGroupsData] = useState<{ [key: string]: any }>(
     defaultState.itemGroupsData
   )
+
+  const [itemsToGroupMapping, setItemsToGroupMapping] =
+    useState<ItemToGroupAndIndex>({})
 
   const getUniqueId = useCallback(() => {
     if (propsGetUniqueId) {
@@ -91,35 +97,59 @@ function ConfiguredDndProvider (props: propTypes) {
       itemPrefix = 'item',
       data
     }: RegisterItemGroupTypeFunctionParameters) => {
-      setItemGroups(itemGroups => ({
-        ...itemGroups,
-        [id]: items.map(item => ({ id: itemPrefix + getUniqueId(), item }))
-      }))
+      setItemGroups(itemGroups => {
+        let newKeys: ItemToGroupAndIndex = {}
+
+        const newItemGroups = {
+          ...itemGroups,
+          [id]: items.map((item, index) => {
+            const itemId = itemPrefix + getUniqueId()
+            newKeys[itemId] = { [id]: index }
+            return { id: itemId, item }
+          })
+        }
+
+        setItemsToGroupMapping(itemsToGroupMapping => ({
+          ...itemsToGroupMapping,
+          ...newKeys
+        }))
+        return newItemGroups
+      })
       setItemGroupsData(itemGroupsData => ({
         ...itemGroupsData,
         [id]: data
       }))
     },
-    [setItemGroups, setItemGroupsData]
+    [setItemGroups, setItemGroupsData, setItemsToGroupMapping]
   )
 
   const registerNonGroupedItem = useCallback(
     (id: UniqueIdentifier, item: any) => {
-      setItemGroups(itemGroups => ({
-        ...itemGroups,
-        [NON_GROUPED_ITEMS_GROUP_NAME]: [
-          ...itemGroups[NON_GROUPED_ITEMS_GROUP_NAME].filter(
-            ({ id: originalId }) => {
-              return id !== originalId
+      setItemGroups(itemGroups => {
+        let toReturn = {
+          ...itemGroups,
+          [NON_GROUPED_ITEMS_GROUP_NAME]: [
+            ...itemGroups[NON_GROUPED_ITEMS_GROUP_NAME].filter(
+              ({ id: originalId }) => {
+                return id !== originalId
+              }
+            ),
+            {
+              item,
+              originalId: id,
+              id
             }
-          ),
-          {
-            item,
-            originalId: id,
-            id
+          ]
+        }
+        setItemsToGroupMapping(itemsToGroupMapping => ({
+          ...itemsToGroupMapping,
+          [id]: {
+            [NON_GROUPED_ITEMS_GROUP_NAME]:
+              toReturn[NON_GROUPED_ITEMS_GROUP_NAME].length - 1
           }
-        ]
-      }))
+        }))
+        return toReturn
+      })
     },
     [setItemGroups]
   )
@@ -139,26 +169,78 @@ function ConfiguredDndProvider (props: propTypes) {
     [itemGroups]
   )
 
-  // quick and dirty removal of a specific item
-  // could write storage of items differently / concurrently if this becomes performance issue
+  // will get any item registered
+  const getItem = useCallback(
+    (id: UniqueIdentifier) => {
+      if (!itemsToGroupMapping[id]) {
+        return null
+      }
+      const [[group, index]] = Object.entries(itemsToGroupMapping[id] || {})
+      const item = itemGroups[group][index]
+
+      if (!item) {
+        return null
+      }
+      return item
+    },
+    [itemGroups]
+  )
+
   const removeItemOfId = useCallback(
     (id: UniqueIdentifier) => {
-      const groups = Object.keys(itemGroups)
-
-      for (let i = 0; i < groups.length; i++) {
-        const group = groups[i]
-        for (let j = 0; j < itemGroups[group].length; j++) {
-          const item = itemGroups[group][j]
-          if (item.id === id) {
-            setItemGroups(priorItemGroups => {
-              return removeFromContainer(priorItemGroups, group, j)
-            })
-            return
-          }
-        }
+      if (!itemsToGroupMapping[id]) {
+        // should exist in the mapping
+        return
       }
+
+      const [[group, index]] = Object.entries(itemsToGroupMapping[id] || {})
+
+      setItemGroups(priorItemGroups => {
+        let { newItemGroups, newItemsToGroupAndIndex } = removeFromContainer(
+          priorItemGroups,
+          group,
+          index
+        )
+
+        setItemsToGroupMapping(priorItemsToGroupMapping => ({
+          ...priorItemsToGroupMapping,
+          ...newItemsToGroupAndIndex
+        }))
+        return newItemGroups
+      })
     },
     [itemGroups, setItemGroups]
+  )
+
+  const updateItem = useCallback(
+    (id: UniqueIdentifier, item: any) => {
+      if (!itemsToGroupMapping[id]) {
+        // should exist in the mapping
+        return
+      }
+      // double setting to make sure that it takes place after copyFix
+      // should someone be using this at onDragEnd
+      setItemGroups(priorItemGroups1 => {
+        setItemsToGroupMapping(newItemsToGroupMappings1 => {
+          setItemGroups(priorItemGroups => {
+            const newItemGroups = { ...priorItemGroups }
+            const [[group, index]] = Object.entries(
+              newItemsToGroupMappings1[id] || {}
+            )
+            const baseItem = priorItemGroups[group][index]
+            newItemGroups[group] = replaceAtIndex(newItemGroups[group], index, {
+              ...baseItem,
+              item
+            })
+            return newItemGroups
+          })
+
+          return newItemsToGroupMappings1
+        })
+        return { ...priorItemGroups1 }
+      })
+    },
+    [itemsToGroupMapping, setItemGroups]
   )
 
   const getItemGroup = useCallback(
@@ -200,7 +282,9 @@ function ConfiguredDndProvider (props: propTypes) {
         dragStartContainerId,
         getItemGroupData,
         active,
-        getUniqueId
+        getUniqueId,
+        setItemsToGroupMapping,
+        itemsToGroupMapping
       }),
     [
       setItemGroups,
@@ -209,7 +293,9 @@ function ConfiguredDndProvider (props: propTypes) {
       dragStartContainerId,
       getItemGroupData,
       active,
-      getUniqueId
+      getUniqueId,
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     ]
   )
 
@@ -222,7 +308,9 @@ function ConfiguredDndProvider (props: propTypes) {
         active,
         getItemGroupData,
         defaultBodyCursor,
-        getUniqueId
+        getUniqueId,
+        setItemsToGroupMapping,
+        itemsToGroupMapping
       }),
     [
       setItemGroups,
@@ -231,7 +319,9 @@ function ConfiguredDndProvider (props: propTypes) {
       active,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId
+      getUniqueId,
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     ]
   )
 
@@ -243,7 +333,9 @@ function ConfiguredDndProvider (props: propTypes) {
     removeItemOfId,
     registerNonGroupedItem,
     getNonGroupedItem,
-    active
+    active,
+    updateItem,
+    getItem
   }
 
   return (

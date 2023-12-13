@@ -5,7 +5,6 @@ import { expect, jest, describe, it } from '@jest/globals'
 
 import createHandleDragOver from '.'
 
-import NON_GROUPED_ITEMS_GROUP_NAME from '../NON_GROUPED_ITEMS_GROUP_NAME'
 import ItemGroups from '../ItemGroups.type'
 
 import {
@@ -15,8 +14,11 @@ import {
   ITEM_3_BASE_ID,
   getBaseItems,
   baseGetUniqueId,
-  BASE_UNIQUE_ID
+  BASE_UNIQUE_ID,
+  itemGroupsToMapping,
+  ITEM_1_ITEM
 } from '../testBasics'
+import ItemToGroupAndIndex from '../ItemToGroupAndIndex.type'
 
 type onDragOverSignature = (dragEndEvent: DragOverEvent) => void
 type getItemGroupDataSignature = (id: UniqueIdentifier) => any
@@ -30,13 +32,38 @@ const basicActive: Active = {
 
 describe('createHandleDragOver', () => {
   let setItemGroups: Dispatch<SetStateAction<ItemGroups>>
-  let setLastOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
+  let setActive: Dispatch<SetStateAction<Active | null>>
   let getItemGroupData: getItemGroupDataSignature
+  let setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
+  let setLastOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
+
+  let itemsToGroupMapping: ItemToGroupAndIndex
+  let testItems
+
+  let testSetItemGroupsSpy
 
   beforeEach(() => {
-    setItemGroups = jest.fn()
-    setLastOverContainerId = jest.fn()
+    testItems = getBaseItems()
+    itemsToGroupMapping = itemGroupsToMapping(testItems)
+    setItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
+      setItemGroupsFunction => {
+        if (typeof setItemGroupsFunction === 'function') {
+          testItems = setItemGroupsFunction(testItems)
+        }
+      }
+    )
+
+    setActive = jest.fn()
+    setItemsToGroupMapping = jest.fn<
+      Dispatch<SetStateAction<ItemToGroupAndIndex>>
+    >(setItemsToGroupMappingFunction => {
+      if (typeof setItemsToGroupMappingFunction === 'function') {
+        itemsToGroupMapping =
+          setItemsToGroupMappingFunction(itemsToGroupMapping)
+      }
+    })
     getItemGroupData = jest.fn<getItemGroupDataSignature>()
+    setLastOverContainerId = jest.fn()
   })
 
   it("Calls the passed in active and over's data.current.onDragOver if it exists", () => {
@@ -50,7 +77,9 @@ describe('createHandleDragOver', () => {
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: basicActive,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragOver({
@@ -78,7 +107,6 @@ describe('createHandleDragOver', () => {
 
   it('If not over something, cleans up copiedFromId and copiedToContainer, restoring to original id if dndCopy is true', () => {
     const id = 'CopiedId'
-    let testItems = getBaseItems()
     testItems[SECOND_CONTAINER_ID].push({
       ...testItems[FIRST_CONTAINER_ID][0]
     })
@@ -89,17 +117,6 @@ describe('createHandleDragOver', () => {
       copiedToContainer: SECOND_CONTAINER_ID
     }
     testItems[SECOND_CONTAINER_ID].push()
-
-    let testSetItemGroupsSpy
-    let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
-
-          testItems = testSetItemGroupsSpy(testItems)
-        }
-      }
-    )
 
     let testSetLastOverContainerIdSpy
     let lastOverContainerId: UniqueIdentifier | null = SECOND_CONTAINER_ID
@@ -114,7 +131,6 @@ describe('createHandleDragOver', () => {
     })
 
     const handleDragOver = createHandleDragOver({
-      setItemGroups: testSetItemGroups,
       lastOverContainerId: SECOND_CONTAINER_ID,
       setLastOverContainerId: testSetLastOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
@@ -127,12 +143,15 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping,
+      setItemGroups
     })
 
     handleDragOver({
       active: {
-        id: FIRST_CONTAINER_ID,
+        id: ITEM_1_BASE_ID,
         data: {
           current: {
             sortable: {
@@ -143,7 +162,7 @@ describe('createHandleDragOver', () => {
       }
     } as unknown as DragOverEvent)
 
-    expect(testSetItemGroupsSpy).lastReturnedWith(getBaseItems())
+    expect(testItems).toStrictEqual(getBaseItems())
   })
 
   it('Will not call setItemGroups if conditions are not met', () => {
@@ -161,7 +180,9 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragOver({
@@ -193,7 +214,8 @@ describe('createHandleDragOver', () => {
         data: {
           current: {
             sortable: {
-              containerId: FIRST_CONTAINER_ID
+              containerId: FIRST_CONTAINER_ID,
+              index: 0
             },
             dndDisallowContainerChanging: true
           }
@@ -204,7 +226,8 @@ describe('createHandleDragOver', () => {
         data: {
           current: {
             sortable: {
-              containerId: SECOND_CONTAINER_ID
+              containerId: SECOND_CONTAINER_ID,
+              index: 0
             }
           }
         }
@@ -220,7 +243,8 @@ describe('createHandleDragOver', () => {
         data: {
           current: {
             sortable: {
-              containerId: FIRST_CONTAINER_ID
+              containerId: FIRST_CONTAINER_ID,
+              index: 0
             }
           }
         }
@@ -230,7 +254,8 @@ describe('createHandleDragOver', () => {
         data: {
           current: {
             sortable: {
-              containerId: SECOND_CONTAINER_ID
+              containerId: SECOND_CONTAINER_ID,
+              index: 0
             }
           }
         }
@@ -255,7 +280,9 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragOver({
@@ -312,7 +339,9 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragOver({
@@ -344,7 +373,9 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragOver({
@@ -353,7 +384,8 @@ describe('createHandleDragOver', () => {
         data: {
           current: {
             sortable: {
-              containerId: FIRST_CONTAINER_ID
+              containerId: FIRST_CONTAINER_ID,
+              index: 0
             }
           }
         }
@@ -363,7 +395,8 @@ describe('createHandleDragOver', () => {
         data: {
           current: {
             sortable: {
-              containerId: SECOND_CONTAINER_ID
+              containerId: SECOND_CONTAINER_ID,
+              index: 0
             }
           }
         }
@@ -375,7 +408,6 @@ describe('createHandleDragOver', () => {
 
   it('Over a container and not set to copy, will simply move there', () => {
     const id = 'CopiedId'
-    let testItems = getBaseItems()
     let testSetItemGroupsSpy
     let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
       setItemGroupsFunction => {
@@ -393,7 +425,9 @@ describe('createHandleDragOver', () => {
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: basicActive,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragOver({
@@ -432,7 +466,6 @@ describe('createHandleDragOver', () => {
 
   it('Over a container and set to copy, will copy there updating data', () => {
     const id = 'CopiedId'
-    let testItems = getBaseItems()
     let testSetItemGroupsSpy
     let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
       setItemGroupsFunction => {
@@ -457,7 +490,9 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => id
+      getUniqueId: () => id,
+      setItemsToGroupMapping,
+      itemsToGroupMapping
     })
 
     handleDragOver({
@@ -486,9 +521,11 @@ describe('createHandleDragOver', () => {
     } as unknown as DragOverEvent)
 
     const expectedItems = getBaseItems()
-    expectedItems[SECOND_CONTAINER_ID].push(
-      expectedItems[FIRST_CONTAINER_ID][0]
-    )
+    expectedItems[SECOND_CONTAINER_ID].push({
+      ...expectedItems[FIRST_CONTAINER_ID][0],
+      copiedFromId: id,
+      copiedFromContainer: FIRST_CONTAINER_ID
+    })
     expectedItems[FIRST_CONTAINER_ID][0] = {
       ...expectedItems[FIRST_CONTAINER_ID][0],
       copiedFromId: expectedItems[FIRST_CONTAINER_ID][0].id,
@@ -559,16 +596,17 @@ describe('createHandleDragOver', () => {
             }
           }
         },
-        getUniqueId: () => `${id}${++idCounter}`
+        getUniqueId: () => `${id}${++idCounter}`,
+        setItemsToGroupMapping,
+        itemsToGroupMapping
       })
     }
 
     // perform first drag to second container
     let handleDragOver = resetHandleDragOver()
-
     handleDragOver({
       active: {
-        id: FIRST_CONTAINER_ID,
+        id: ITEM_1_BASE_ID,
         data: {
           current: {
             sortable: {
@@ -596,7 +634,9 @@ describe('createHandleDragOver', () => {
       ...expectedItems[FIRST_CONTAINER_ID][0]
     }
     expectedItems[SECOND_CONTAINER_ID].push({
-      ...baseItem
+      ...baseItem,
+      copiedFromContainer: FIRST_CONTAINER_ID,
+      copiedFromId: `${id}${idCounter}`
     })
 
     expectedItems[FIRST_CONTAINER_ID][0] = {
@@ -606,15 +646,15 @@ describe('createHandleDragOver', () => {
       id: `${id}${idCounter}`
     }
 
-    expect(testSetItemGroupsSpy).lastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
 
     handleDragOver = resetHandleDragOver()
 
     // perform second drag over with updated info
-
+    // drag over the new group
     handleDragOver({
       active: {
-        id: SECOND_CONTAINER_ID,
+        id: ITEM_1_BASE_ID,
         data: {
           current: {
             sortable: {
@@ -638,13 +678,15 @@ describe('createHandleDragOver', () => {
     } as unknown as DragOverEvent)
 
     expectedItems[newGroupName].push({
-      ...baseItem
+      ...baseItem,
+      copiedFromContainer: FIRST_CONTAINER_ID,
+      copiedFromId: ITEM_1_BASE_ID
     })
 
     expectedItems[FIRST_CONTAINER_ID][0].copiedToContainer = newGroupName
     expectedItems[SECOND_CONTAINER_ID].splice(1)
 
-    expect(testSetItemGroupsSpy).lastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
 
     handleDragOver = resetHandleDragOver()
 
@@ -663,7 +705,7 @@ describe('createHandleDragOver', () => {
         }
       },
       active: {
-        id: newGroupName,
+        id: ITEM_1_BASE_ID,
         data: {
           current: {
             sortable: {
@@ -682,6 +724,6 @@ describe('createHandleDragOver', () => {
     expectedItems[FIRST_CONTAINER_ID][0] = { ...baseItem }
     expectedItems[newGroupName].splice(1)
 
-    expect(testSetItemGroupsSpy).lastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
   })
 })

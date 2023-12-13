@@ -13,7 +13,9 @@ Utility functions, types, and constants for the ConfiguredDndProvider.
 - [removeFromContainer/](removeFromContainer/readme.md) - Return ItemGroups with an item removed from specified container
 - [replaceAtIndex/](replaceAtIndex/readme.md) - Return a new array with an different item at the given index in an array
 - ContainerItem.type.ts - A TypeScript type to define a ContainerItem - The basic structure used for storing data and items
+- copyFix.ts - Fixes some copy data up - no test file as tested through the createHandle methods.
 - dndAllowableDropFilterSignature.type.ts - A TypeScript type to define the dndAllowableDropFilter function
 - ItemGroups.type.ts - A TypeScript type to define ItemGroups - the basic structure in which ContainerItems are stored
+- ItemToGroupAndIndex.type.ts - A TypeScript type to define ItemToGroupAndIndex - a map of items to containers and their index
 - NON_GROUPED_ITEMS_GROUP_NAME.ts - A string constant for non grouped items group
 - testBasics.ts - Items used in the tests for this provider

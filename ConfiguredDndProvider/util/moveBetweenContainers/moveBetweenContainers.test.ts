@@ -9,7 +9,7 @@ import {
   ITEM_1_BASE_ID,
   ITEM_3_BASE_ID,
   getBaseItems,
-  BASE_UNIQUE_ID
+  itemGroupsToMapping
 } from '../testBasics'
 
 describe('moveBetweenContainers', () => {
@@ -24,12 +24,21 @@ describe('moveBetweenContainers', () => {
     })
 
     const expected = getBaseItems()
+    const baseItemMapping = itemGroupsToMapping(expected)
+
     expected[SECOND_CONTAINER_ID].push({
       ...getBaseItems()[FIRST_CONTAINER_ID][0]
     })
     expected[FIRST_CONTAINER_ID].splice(0, 1)
 
-    expect(result).toStrictEqual(expected)
+    expect(result.newItemGroups).toStrictEqual(expected)
+
+    const expectedItemMapping = itemGroupsToMapping(result.newItemGroups)
+
+    expect({
+      ...baseItemMapping,
+      ...result.newItemsToGroupAndIndex
+    }).toEqual(expectedItemMapping) // using toEqual, as allowing setting to undefined this way
   })
 
   it('Can move from ungrouped container', () => {
@@ -49,6 +58,6 @@ describe('moveBetweenContainers', () => {
 
     expected[NON_GROUPED_ITEMS_GROUP_NAME].splice(0, 1)
 
-    expect(result).toStrictEqual(expected)
+    expect(result.newItemGroups).toStrictEqual(expected)
   })
 })

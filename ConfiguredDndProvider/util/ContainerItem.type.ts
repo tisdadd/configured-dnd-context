@@ -10,7 +10,9 @@ type ContainerItem = {
   copiedFromId?: UniqueIdentifier
   /**What container was this copied to */
   copiedToContainer?: UniqueIdentifier
-  /** what was this items original id */
+  /**What container was this copied to */
+  copiedFromContainer?: UniqueIdentifier
+  /** what was this items original id, or new id depending upon direction copied */
   originalId?: UniqueIdentifier
 }
 

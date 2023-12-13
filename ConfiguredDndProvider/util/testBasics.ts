@@ -1,6 +1,7 @@
 import NON_GROUPED_ITEMS_GROUP_NAME from './NON_GROUPED_ITEMS_GROUP_NAME'
 
 import ItemGroups from './ItemGroups.type'
+import ItemToGroupAndIndex from './ItemToGroupAndIndex.type'
 
 export const FIRST_CONTAINER_ID = 'firstGroup'
 export const SECOND_CONTAINER_ID = 'secondGroup'
@@ -43,4 +44,16 @@ export const getBaseItems = () => {
     ]
   }
   return baseItems
+}
+
+export const itemGroupsToMapping = (itemGroups: ItemGroups) => {
+  let toReturn: ItemToGroupAndIndex = {}
+
+  Object.entries(itemGroups).forEach(([group, items]) => {
+    items.forEach((item, index) => {
+      toReturn[item.id] = { [group]: index }
+    })
+  })
+
+  return toReturn
 }

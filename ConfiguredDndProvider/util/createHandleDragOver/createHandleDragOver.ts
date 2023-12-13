@@ -6,6 +6,8 @@ import removeFromContainer from '../removeFromContainer'
 import NON_GROUPED_ITEMS_GROUP_NAME from '../NON_GROUPED_ITEMS_GROUP_NAME'
 import ItemGroups from '../ItemGroups.type'
 import replaceAtIndex from '../replaceAtIndex'
+import ItemToGroupAndIndex from '../ItemToGroupAndIndex.type'
+import copyFix from '../copyFix'
 
 type createHandleDragOverInput = {
   setItemGroups: Dispatch<SetStateAction<ItemGroups>>
@@ -15,6 +17,8 @@ type createHandleDragOverInput = {
   getItemGroupData: (id: UniqueIdentifier) => any
   active: Active | null
   getUniqueId: () => UniqueIdentifier
+  setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
+  itemsToGroupMapping: ItemToGroupAndIndex
 }
 
 const createHandleDragOver = ({
@@ -24,7 +28,9 @@ const createHandleDragOver = ({
   dragStartContainerId,
   getItemGroupData,
   active: originalActive,
-  getUniqueId
+  getUniqueId,
+  setItemsToGroupMapping,
+  itemsToGroupMapping
 }: createHandleDragOverInput) => {
   const handleDragOver = (dragOverEvent: DragOverEvent) => {
     const { active, over } = dragOverEvent
@@ -56,18 +62,41 @@ const createHandleDragOver = ({
                 return itemGroups
               }
 
-              const newItems = removeFromContainer(
-                itemGroups,
-                containerId,
-                activeIndex
-              )
+              const {
+                newItemGroups: newItems,
+                newItemsToGroupAndIndex,
+                removedItem
+              } = removeFromContainer(itemGroups, containerId, activeIndex)
+              setItemsToGroupMapping(priorItemsToGroupMapping => {
+                const newItemsToGroupMapping = {
+                  ...priorItemsToGroupMapping,
+                  ...newItemsToGroupAndIndex
+                }
+                return newItemsToGroupMapping
+              })
+              if (originalActive?.data?.current?.dndCopy) {
+                copyFix({
+                  setItemGroups,
+                  itemsToGroupMapping,
+                  setItemsToGroupMapping,
+                  active,
+                  removedItem
+                })
+              }
 
               const finalContainerId = newItems[dragStartContainerId || '']
                 ? dragStartContainerId || ''
                 : NON_GROUPED_ITEMS_GROUP_NAME
               // quick clean up function for if we attached excess data during dragging
               newItems[finalContainerId] = newItems[finalContainerId].map(
-                ({ id, item, copiedFromId, copiedToContainer, ...rest }) => {
+                ({
+                  id,
+                  item,
+                  copiedFromId,
+                  copiedToContainer,
+                  copiedFromContainer,
+                  ...rest
+                }) => {
                   return { id: copiedFromId || id, item, ...rest }
                 }
               )
@@ -113,15 +142,21 @@ const createHandleDragOver = ({
 
           // if the active is copyable
           if (originalActive?.data?.current?.dndCopy) {
-            let newItems = copyBetweenContainers({
-              items: itemGroups,
-              activeContainer,
-              activeIndex,
-              overContainer,
-              overIndex,
-              active,
-              getUniqueId
-            })
+            let { newItemGroups: newItems, newItemsToGroupAndIndex } =
+              copyBetweenContainers({
+                items: itemGroups,
+                activeContainer,
+                activeIndex,
+                overContainer,
+                overIndex,
+                active,
+                getUniqueId
+              })
+
+            setItemsToGroupMapping(priorItemsToGroupMapping => ({
+              ...priorItemsToGroupMapping,
+              ...newItemsToGroupAndIndex
+            }))
 
             // if moved directly (using keyboard), may need to do slightly more
             if (
@@ -129,11 +164,16 @@ const createHandleDragOver = ({
               overContainer !== lastOverContainerId &&
               lastOverContainerId !== dragStartContainerId
             ) {
-              newItems = removeFromContainer(
+              const baseRemoval = removeFromContainer(
                 newItems,
                 lastOverContainerId,
                 activeIndex
               )
+              newItems = baseRemoval.newItemGroups
+              setItemsToGroupMapping(priorItemsToGroupMapping => ({
+                ...priorItemsToGroupMapping,
+                ...baseRemoval.newItemsToGroupAndIndex
+              }))
 
               const finalContainerId = newItems[dragStartContainerId || '']
                 ? dragStartContainerId || ''
@@ -144,13 +184,27 @@ const createHandleDragOver = ({
                   copiedFromId === newItems[overContainer][overIndex].id
               )
 
+              // let baseItemIndex = -1
+              // let baseItem =
+              //   itemsToGroupMapping[newItems[overContainer][overIndex].id]
+              // if (baseItem) {
+              //   baseItemIndex = Object.values(baseItem)[0]
+              // }
+
               if (baseItemIndex > -1) {
                 if (overContainer === dragStartContainerId) {
-                  newItems = removeFromContainer(
+                  const baseRemoval = removeFromContainer(
                     newItems,
                     finalContainerId,
                     baseItemIndex
                   )
+                  newItems = baseRemoval.newItemGroups
+                  delete newItems[overContainer][overIndex].copiedFromId
+                  delete newItems[overContainer][overIndex].copiedFromContainer
+                  setItemsToGroupMapping(priorItemsToGroupMapping => ({
+                    ...priorItemsToGroupMapping,
+                    ...baseRemoval.newItemsToGroupAndIndex
+                  }))
                 } else {
                   newItems[finalContainerId] = replaceAtIndex(
                     newItems[finalContainerId],
@@ -160,6 +214,16 @@ const createHandleDragOver = ({
                       copiedToContainer: overContainer
                     }
                   )
+                  newItems[overContainer] = replaceAtIndex(
+                    newItems[overContainer],
+                    overIndex,
+                    {
+                      ...newItems[overContainer][overIndex],
+                      copiedFromContainer:
+                        baseRemoval.removedItem.copiedFromContainer,
+                      copiedFromId: baseRemoval.removedItem.copiedFromId
+                    }
+                  )
                 }
               }
             }
@@ -167,7 +231,7 @@ const createHandleDragOver = ({
             return newItems
           }
 
-          return moveBetweenContainers({
+          let baseMove = moveBetweenContainers({
             items: itemGroups,
             activeContainer,
             activeIndex,
@@ -175,6 +239,13 @@ const createHandleDragOver = ({
             overIndex,
             active
           })
+
+          setItemsToGroupMapping(priorItemsToGroupMapping => ({
+            ...priorItemsToGroupMapping,
+            ...baseMove.newItemsToGroupAndIndex
+          }))
+
+          return baseMove.newItemGroups
         })
       }
     }
