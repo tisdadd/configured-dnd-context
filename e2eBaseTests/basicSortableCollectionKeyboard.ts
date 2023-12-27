@@ -1,6 +1,10 @@
 import { expect, Page } from '@playwright/test'
 
-async function basicSortableCollectionKeyboard (page: Page, url: string) {
+async function basicSortableCollectionKeyboard (
+  page: Page,
+  url: string,
+  baseName: string = 'Drag Me'
+) {
   await page.goto(url)
 
   const squareA = await page.getByRole('button', { name: 'Drag Me A' })

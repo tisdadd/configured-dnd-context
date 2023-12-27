@@ -144,6 +144,7 @@ const createHandleDragEnd = ({
               active
             })
             newItems = movedItems.newItemGroups
+            console.log({ movedItems })
             setItemsToGroupMapping(priorItemsToGroupMapping => ({
               ...priorItemsToGroupMapping,
               ...movedItems.newItemsToGroupAndIndex

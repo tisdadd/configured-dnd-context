@@ -29,9 +29,7 @@ export default {
   },
   getUniqueId: () => {
     console.log(
-      console.log(
-        `Please wrap in ConfiguredDndProvider for real functionality - returning lame id`
-      )
+      `Please wrap in ConfiguredDndProvider for real functionality - returning lame id`
     )
     return 'ID-123' as UniqueIdentifier
   },

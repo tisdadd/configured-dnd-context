@@ -20,7 +20,7 @@ import sortableContainerWithDroppableContainerMouse from '../e2eBaseTests/sortab
 import sortableContainerWithAddAndRemoveDragAndDropsMouse from '../e2eBaseTests/sortableContainerWithAddAndRemoveDragAndDropsMouse'
 import sortableContainerWithAddAndRemoveDragAndDropsKeyboard from '../e2eBaseTests/sortableContainerWithAddAndRemoveDragAndDropsKeyboard'
 
-function baseTests (baseUrl: string) {
+function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
   test.describe('Basic Drag No Drop', () => {
     const url = `${baseUrl}--basic-drag-no-drop&viewMode=story`
 

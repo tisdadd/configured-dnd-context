@@ -3,7 +3,8 @@ import moveMouseRelativeToBoundingBox from './util/moveMouseRelativeToBoundingBo
 
 async function multipleSortableContainersWithoutMovingBetweenThemMouse (
   page: Page,
-  url: string
+  url: string,
+  baseName: string = 'Drag Me'
 ) {
   await page.goto(url)
 

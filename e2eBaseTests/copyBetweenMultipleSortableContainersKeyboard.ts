@@ -2,7 +2,8 @@ import { expect, Page } from '@playwright/test'
 
 async function moveBetweenMultipleSortableContainersKeyboard (
   page: Page,
-  url: string
+  url: string,
+  baseName: string = 'Drag Me'
 ) {
   await page.goto(url)
 

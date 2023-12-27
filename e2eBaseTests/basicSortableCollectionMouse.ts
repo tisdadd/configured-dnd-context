@@ -1,7 +1,11 @@
 import { expect, Page } from '@playwright/test'
 import moveMouseRelativeToBoundingBox from './util/moveMouseRelativeToBoundingBox'
 
-async function basicSortableCollectionMouse (page: Page, url: string) {
+async function basicSortableCollectionMouse (
+  page: Page,
+  url: string,
+  baseName: string = 'Drag Me'
+) {
   await page.goto(url)
 
   const squareA = await page.getByRole('button', { name: 'Drag Me A' })

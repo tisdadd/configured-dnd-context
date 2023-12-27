@@ -1,7 +1,11 @@
 import { expect, Page } from '@playwright/test'
 import moveMouseRelativeToBoundingBox from './util/moveMouseRelativeToBoundingBox'
 
-async function dragOnlyToContainerOneRightMouse (page: Page, url: string) {
+async function dragOnlyToContainerOneRightMouse (
+  page: Page,
+  url: string,
+  baseName: string = 'Drag Me'
+) {
   await page.goto(url)
 
   const square1A = await page.getByRole('button', { name: 'Drag Me 1-A' })

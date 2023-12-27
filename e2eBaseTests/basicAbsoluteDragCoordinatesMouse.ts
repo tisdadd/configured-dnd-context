@@ -1,6 +1,10 @@
 import { expect, Page } from '@playwright/test'
 
-async function basicAbsoluteDragCoordinatesMouse (page: Page, url: string) {
+async function basicAbsoluteDragCoordinatesMouse (
+  page: Page,
+  url: string,
+  baseName: string = 'Drag Me'
+) {
   await page.goto(url)
 
   const square = await page.getByRole('button', { name: 'Drag Me' })

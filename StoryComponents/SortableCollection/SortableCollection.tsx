@@ -2,7 +2,8 @@ import React, {
   useState,
   useEffect,
   ReactElement,
-  ReactComponentElement
+  ReactComponentElement,
+  ComponentType
 } from 'react'
 
 import { useDroppable } from '@dnd-kit/core'
@@ -17,9 +18,10 @@ type SortableCollectionProps = {
   dndDisallowContainerChanging?: boolean
   data?: any
   itemDataFunction?: () => any
+  Component?: ComponentType<P>
 }
 
-const SortableCollection = ({
+const SortableCollection = <P extends object>({
   value = defaultValue,
   prefix = '',
   dndCopy = false,
@@ -27,7 +29,8 @@ const SortableCollection = ({
   data = {},
   itemDataFunction = () => {
     return {}
-  }
+  },
+  Component = DragSquare
 }: SortableCollectionProps) => {
   const { registerItemGroup, getItemGroup, getUniqueId } = value
   const [id] = useState('list-' + getUniqueId())
@@ -47,9 +50,9 @@ const SortableCollection = ({
   let innards =
     items.length > 0
       ? items.map(({ id: squareId, item, copiedFromId }) => (
-          <DragSquare
+          <Component
             key={squareId}
-            extraText={item}
+            extraText={typeof item === 'string' ? item : item.extraText}
             id={squareId}
             value={value}
             sortable={true}

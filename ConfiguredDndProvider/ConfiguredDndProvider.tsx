@@ -206,6 +206,7 @@ function ConfiguredDndProvider (props: propTypes) {
           ...priorItemsToGroupMapping,
           ...newItemsToGroupAndIndex
         }))
+
         return newItemGroups
       })
     },
@@ -232,6 +233,7 @@ function ConfiguredDndProvider (props: propTypes) {
               ...baseItem,
               item
             })
+
             return newItemGroups
           })
 

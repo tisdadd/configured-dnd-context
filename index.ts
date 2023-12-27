@@ -4,8 +4,13 @@ import dndAllowableDropFilterSignature from './ConfiguredDndProvider/util/dndAll
 export { default as ConfiguredDndProvider } from './ConfiguredDndProvider'
 export { default as withConfiguredDnd } from './withConfiguredDnd'
 export { default as useConfiguredDnd } from './useConfiguredDnd'
+export { default as withMakeDraggable } from './withMakeDraggable'
+export { default as withMakeDroppable } from './withMakeDroppable'
+
 export type { default as dndAllowableDropFilterSignature } from './ConfiguredDndProvider/util/dndAllowableDropFilterSignature.type'
 export type { default as ContainerItem } from './ConfiguredDndProvider/util/ContainerItem.type'
+export type { default as withMakeDraggableAttachesPropTypes } from './withMakeDraggable/withMakeDraggable.attachesPropTypes'
+export type { default as withMakeDroppableAttachesPropTypes } from './withMakeDroppable/withMakeDroppable.attachesPropTypes'
 
 /** Make it easy to see what type of data is available for draggable's */
 export interface DraggableDataExtras {

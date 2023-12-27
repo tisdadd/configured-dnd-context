@@ -37,6 +37,7 @@ const copyBetweenContainers = ({
   }
 
   const baseItem = items[activeContainer][activeIndex]
+  console.log({ baseItem, active, activeContainer, activeIndex, items })
   const newId = getUniqueId()
 
   const overItem = idStays

@@ -60,4 +60,70 @@ describe('moveBetweenContainers', () => {
 
     expect(result.newItemGroups).toStrictEqual(expected)
   })
+
+  it('Can move from ungrouped container to an empty container', () => {
+    const result = moveBetweenContainers({
+      items: {
+        'non-sortable-group': [
+          {
+            item: '1',
+            originalId: 'DragCopy',
+            id: 'DragCopy'
+          },
+          {
+            item: 'Move',
+            originalId: 'DragMove',
+            id: 'DragMove'
+          }
+        ],
+        'list-5d7e2fdc-36b9-46ba-955d-9e798901fb95': []
+      },
+      activeContainer: 'Sortable',
+      activeIndex: -1,
+      overContainer: 'list-5d7e2fdc-36b9-46ba-955d-9e798901fb95',
+      overIndex: 1,
+      active: {
+        id: 'DragMove',
+        data: {
+          current: {
+            sortable: {
+              containerId: 'Sortable',
+              index: -1,
+              items: []
+            },
+            extraText: 'Move'
+          }
+        },
+        rect: {
+          current: {
+            initial: null,
+            translated: null
+          }
+        }
+      }
+    })
+
+    expect(result.newItemGroups).toStrictEqual({
+      'non-sortable-group': [
+        {
+          item: '1',
+          originalId: 'DragCopy',
+          id: 'DragCopy'
+        }
+      ],
+      'list-5d7e2fdc-36b9-46ba-955d-9e798901fb95': [
+        {
+          item: 'Move',
+          originalId: 'DragMove',
+          id: 'DragMove'
+        }
+      ]
+    })
+
+    expect(result.newItemsToGroupAndIndex).toStrictEqual({
+      DragMove: {
+        'list-5d7e2fdc-36b9-46ba-955d-9e798901fb95': 0
+      }
+    })
+  })
 })

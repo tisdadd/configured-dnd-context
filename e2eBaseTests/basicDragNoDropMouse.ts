@@ -1,6 +1,10 @@
 import { expect, Page } from '@playwright/test'
 
-async function basicDragNoDropMouse (page: Page, url: string) {
+async function basicDragNoDropMouse (
+  page: Page,
+  url: string,
+  baseName: string = 'Drag Me'
+) {
   await page.goto(url)
   const square = await page.getByRole('button', { name: 'Drag Me' })
   const position1 = await square.boundingBox()
