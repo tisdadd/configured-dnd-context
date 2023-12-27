@@ -27,13 +27,13 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     test('Should be able to drag via mouse, and on release return to start', async ({
       page
     }) => {
-      await basicDragNoDropMouse(page, url)
+      await basicDragNoDropMouse(page, url, baseName)
     })
 
     test('Should be able to move via keyboard, and on release return to start', async ({
       page
     }) => {
-      await basicDragNoDropKeyboard(page, url)
+      await basicDragNoDropKeyboard(page, url, baseName)
     })
   })
 
@@ -42,13 +42,13 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     test('Should be able to drag and drop into a position via mouse', async ({
       page
     }) => {
-      await basicAbsoluteDragCoordinatesMouse(page, url)
+      await basicAbsoluteDragCoordinatesMouse(page, url, baseName)
     })
 
     test('Should be able to move to a new position via keyboard', async ({
       page
     }) => {
-      await basicAbsoluteDragCoordinatesKeyboard(page, url)
+      await basicAbsoluteDragCoordinatesKeyboard(page, url, baseName)
     })
   })
 
@@ -57,13 +57,13 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     test('Should be able to drag and drop to change positions via mouse', async ({
       page
     }) => {
-      await basicSortableCollectionMouse(page, url)
+      await basicSortableCollectionMouse(page, url, baseName)
     })
 
     test('Should be able to move to a new position via keyboard', async ({
       page
     }) => {
-      await basicSortableCollectionKeyboard(page, url)
+      await basicSortableCollectionKeyboard(page, url, baseName)
     })
   })
 
@@ -72,13 +72,13 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     test('Should be able to drag and drop to change positions and collection via mouse', async ({
       page
     }) => {
-      await moveBetweenMultipleSortableContainersMouse(page, url)
+      await moveBetweenMultipleSortableContainersMouse(page, url, baseName)
     })
 
     test('Should be able to move to a new position and collection via keyboard', async ({
       page
     }) => {
-      await moveBetweenMultipleSortableContainersKeyboard(page, url)
+      await moveBetweenMultipleSortableContainersKeyboard(page, url, baseName)
     })
   })
 
@@ -87,13 +87,13 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     test('Should be able to drag and drop to copy to another collection via mouse', async ({
       page
     }) => {
-      await copyBetweenMultipleSortableContainersMouse(page, url)
+      await copyBetweenMultipleSortableContainersMouse(page, url, baseName)
     })
 
     test('Should be able to copy to another collection via keyboard', async ({
       page
     }) => {
-      await copyBetweenMultipleSortableContainersKeyboard(page, url)
+      await copyBetweenMultipleSortableContainersKeyboard(page, url, baseName)
     })
   })
 
@@ -102,13 +102,13 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     test('Should be able to drag and drop to copy or move to another collection via mouse', async ({
       page
     }) => {
-      await firstContainerCopiesFromOthersMoveOnlyMouse(page, url)
+      await firstContainerCopiesFromOthersMoveOnlyMouse(page, url, baseName)
     })
 
     test('Should be able to copy to another collection via keyboard', async ({
       page
     }) => {
-      await firstContainerCopiesFromOthersMoveOnlyKeyboard(page, url)
+      await firstContainerCopiesFromOthersMoveOnlyKeyboard(page, url, baseName)
     })
   })
 
@@ -117,7 +117,11 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     test('Should be able to drag and drop to copy or move to another collection via mouse', async ({
       page
     }) => {
-      await multipleSortableContainersWithoutMovingBetweenThemMouse(page, url)
+      await multipleSortableContainersWithoutMovingBetweenThemMouse(
+        page,
+        url,
+        baseName
+      )
     })
 
     test('Should be able to copy to another collection via keyboard', async ({
@@ -125,7 +129,8 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     }) => {
       await multipleSortableContainersWithoutMovingBetweenThemKeyboard(
         page,
-        url
+        url,
+        baseName
       )
     })
   })
@@ -135,35 +140,43 @@ function baseTests (baseUrl: string, baseName: string = 'Drag Me') {
     test('Should be able to drag and drop to copy or move to another collection via mouse', async ({
       page
     }) => {
-      await dragOnlyToContainerOneRightMouse(page, url)
+      await dragOnlyToContainerOneRightMouse(page, url, baseName)
     })
 
     test('Should be able to copy to another collection via keyboard', async ({
       page
     }) => {
-      await dragOnlyToContainerOneRightKeyboard(page, url)
+      await dragOnlyToContainerOneRightKeyboard(page, url, baseName)
     })
   })
 
   test.describe('Sortable Container With Droppable Container', () => {
     const url = `${baseUrl}--sortable-container-with-droppable-container&viewMode=story`
     test('Should be able to drop via mouse', async ({ page }) => {
-      await sortableContainerWithDroppableContainerMouse(page, url)
+      await sortableContainerWithDroppableContainerMouse(page, url, baseName)
     })
 
     test('Should be able to drop via keyboard', async ({ page }) => {
-      await sortableContainerWithDroppableContainerKeyboard(page, url)
+      await sortableContainerWithDroppableContainerKeyboard(page, url, baseName)
     })
   })
 
   test.describe('Sortable Container With Add And Remove Drag And Drops', () => {
     const url = `${baseUrl}--sortable-container-with-add-and-remove-drag-and-drops&viewMode=story`
     test('Should be able to add and remove via mouse', async ({ page }) => {
-      await sortableContainerWithAddAndRemoveDragAndDropsMouse(page, url)
+      await sortableContainerWithAddAndRemoveDragAndDropsMouse(
+        page,
+        url,
+        baseName
+      )
     })
 
     test('Should be able to drop via keyboard', async ({ page }) => {
-      await sortableContainerWithAddAndRemoveDragAndDropsKeyboard(page, url)
+      await sortableContainerWithAddAndRemoveDragAndDropsKeyboard(
+        page,
+        url,
+        baseName
+      )
     })
   })
 }

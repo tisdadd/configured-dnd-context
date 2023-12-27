@@ -5,8 +5,17 @@ import { useDroppable, UniqueIdentifier } from '@dnd-kit/core'
 import useConfiguredDnd from '../useConfiguredDnd'
 
 type DndDroppableType = {
+  /**
+   * A non-generated id
+   */
   id?: UniqueIdentifier
+  /**
+   * Is this droppable disabled?
+   */
   disabled?: boolean
+  /**
+   * What data does this droppable have to keep track of
+   */
   data?: object
 }
 

@@ -8,9 +8,9 @@ async function basicSortableCollectionMouse (
 ) {
   await page.goto(url)
 
-  const squareA = await page.getByRole('button', { name: 'Drag Me A' })
-  const squareB = await page.getByRole('button', { name: 'Drag Me B' })
-  const squareC = await page.getByRole('button', { name: 'Drag Me C' })
+  const squareA = await page.getByRole('button', { name: baseName + ' A' })
+  const squareB = await page.getByRole('button', { name: baseName + ' B' })
+  const squareC = await page.getByRole('button', { name: baseName + ' C' })
 
   const squareABoundingBox1 = await squareA.boundingBox()
   const squareBBoundingBox1 = await squareB.boundingBox()

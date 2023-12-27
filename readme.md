@@ -114,7 +114,7 @@ type getItem: (id: UniqueIdentifier) => ContainerItem
 This hook has access to all of the functions and properties given by the provider. Additionally, it will automatically assign a stateful id for your component. Example usage below - for complete working examples, please check out the storybook.
 
 ```tsx
-import { useConfiguredDnd } from 'configured-dnd-provider'
+import { useConfiguredDnd } from 'configured-dnd-context'
 ...
 const { id, registerItemGroup, getItemGroup } = useConfiguredDnd()
 
@@ -221,6 +221,113 @@ onDragOver?: (dragOverEvent: DragOverEvent)=>void
 onDrop?: (dragEndEvent: DragEndEvent)=>void
 ```
 
+#### withMakeDraggable HOC
+
+This is to quickly make a basic display element draggable. It makes hooks, manages id and such for you and passes it to you, so your element just needs to grab what it receives. For more complete examples, please take a look at the stories, or the Field copied from the project at a point where it is working, and where this HOC was imported from.
+
+```ts
+type DndDraggableType = {
+  /**
+   * Should this be considered as a Sortable object and interact as such
+   */
+  sortable?: boolean
+  /**
+   * An id if we don't want the generated one
+   */
+  id?: UniqueIdentifier
+  /**
+   * Data associated with this item
+   */
+  data?: object
+  /**
+   * Should the cursor behave differently than grab
+   */
+  overCursor?: string
+  /**
+   * Should the cursor behave differently than grabbing
+   */
+  draggingCursor?: string
+  /**
+   * Is this an individual item outside of a normal group
+   */
+  nonGroupedItem?: boolean
+  /**
+   * Do we want any extra style while dragging?
+   */
+  whileDraggingExtraStyle?: object
+  /**
+   * Do we want a function to exist that didn't before?
+   */
+  dataFunction?: () => object
+}
+
+type WithMakeDraggableAttachedPropTypes = {
+  dndExtras: {
+    /** Extra Style To Attach to an Element */
+    style?: object
+    /** Is something currently being dragged over this */
+    isOver?: boolean
+    /**
+     * Extra Data
+     */
+    data: any
+    /** An id that should be used */
+    id: UniqueIdentifier
+    /**
+     * Is this object in the overlay?
+     */
+    inOverlay?: boolean
+  } & (ReturnType<typeof useDraggable> | ReturnType<typeof useSortable>)
+}
+
+BaseComponent = ({dndExtras, rest} ) => {...}
+const MyComponent = withMakeDraggable(BaseComponent)
+
+<MyComponent dndDraggable={optionalInputHere} />
+
+```
+
+#### withMakeDroppable HOC
+
+This is to quickly make a basic display element droppable. It makes hooks, manages id and such for you and passes it to you, so your element just needs to grab what it receives. For more complete examples, please take a look at the stories, or the Field copied from the project at a point where it is working, and where this HOC was imported from.
+
+```ts
+type DndDroppableType = {
+  /**
+   * A non-generated id
+   */
+  id?: UniqueIdentifier
+  /**
+   * Is this droppable disabled?
+   */
+  disabled?: boolean
+  /**
+   * What data does this droppable have to keep track of
+   */
+  data?: object
+}
+
+type WithMakeDroppableAttachedPropTypes = {
+  dndExtras: {
+    /** Extra Style To Attach to an Element */
+    style?: object
+    /** Is something currently being dragged over this */
+    isOver?: boolean
+    /**
+     * Extra Data
+     */
+    data: any
+    /** An id that should be used */
+    id: UniqueIdentifier
+  } & ReturnType<typeof useDroppable>
+}
+
+BaseComponent = ({dndExtras, rest} ) => {...}
+const MyComponent = withMakeDroppable(BaseComponent)
+
+<MyComponent dndDroppable={optionalInputHere} />
+```
+
 ### Play with it locally before deciding to install it in a project
 
 You may run this locally with `npm install` and `npm run storybook` to see some example functions.
@@ -232,6 +339,285 @@ const { id, ...value } = useConfiguredDnd()
 ## History of Creation or Why Publish This?
 
 This was pulled out of a larger project I have been working on, as I realized it might be useful for others when I had searched and saw threads such as [how to drag by copying](https://github.com/clauderic/dnd-kit/issues/456) and [consider adding clone from list example](https://github.com/clauderic/dnd-kit/issues/45). After following [this example](https://github.com/clauderic/dnd-kit/issues/456) and adding in more functionality that I figured I would use, I wanted to be able to make it simple for others to do the same without getting too far off of the original.
+
+### A component using this System
+
+Below is an example component that this system is being developed around, should someone want to see a bit more on the why.
+
+```tsx
+// FieldSet.tsx
+import React, { useEffect } from 'react'
+import { Paper, Typography, Stack } from '@mui/material'
+import { useDroppable } from '@dnd-kit/core'
+
+import { useConfiguredDnd } from 'configured-dnd-context'
+
+import { DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
+
+import FieldSetProps from './FieldSet.propTypes'
+
+import Field from './components/Field'
+
+function FieldSet ({ fields = [], mappable, title }: FieldSetProps) {
+  const {
+    registerItemGroup,
+    getItemGroup,
+    updateItem,
+    id,
+    getItem,
+    getUniqueId
+  } = useConfiguredDnd()
+
+  const { setNodeRef } = useDroppable({ id })
+
+  useEffect(() => {
+    if (id) {
+      registerItemGroup({ id, items: fields, itemPrefix: 'field-' })
+    }
+  }, [id, fields])
+
+  const items = getItemGroup(id)
+
+  return (
+    <Paper>
+      <Typography variant='h6'>{title}</Typography>
+      <SortableContext
+        id={`${id}`}
+        items={items.map(({ id }) => id)}
+        strategy={rectSortingStrategy}
+      >
+        <Stack
+          ref={setNodeRef}
+          style={{ minWidth: '100px', minHeight: '100px', height: '100%' }}
+        >
+          {items.map(({ id: fieldId, item }) => (
+            <Field
+              dndDraggable={{
+                sortable: true,
+                id: fieldId,
+                data: {
+                  dndDisallowContainerChanging: true,
+                  parentId: id,
+                  onDrop: (onDragEnd: DragEndEvent) => {
+                    if (onDragEnd.active.data?.current?.parentId === id) {
+                      return
+                    }
+
+                    if (typeof item === 'string') {
+                      item = {
+                        name: item,
+                        label: item
+                      }
+                    }
+                    let subField = { ...getItem(onDragEnd.active.id) }
+                    if (!subField) {
+                      return
+                    }
+                    updateItem(fieldId, {
+                      ...item,
+                      subFields: [
+                        ...(item.subFields || []),
+                        { id: getUniqueId(), field: subField.item }
+                      ]
+                    })
+                  }
+                }
+              }}
+              key={fieldId}
+              field={item}
+              mappable={mappable}
+            />
+          ))}
+        </Stack>
+      </SortableContext>
+    </Paper>
+  )
+}
+
+export default FieldSet
+
+
+// Field.tsx
+import React from 'react'
+import { Paper, Typography, Stack, IconButton } from '@mui/material'
+import { DragIndicator, Start, Add, Delete } from '@mui/icons-material'
+
+import FieldType from './Field.type'
+import {
+  useConfiguredDnd,
+  withMakeDroppable,
+  withMakeDraggable,
+  withMakeDraggableAttachesPropTypes
+} from 'configured-dnd-context'
+import { DragEndEvent } from '@dnd-kit/core'
+
+type FieldPropTypes = {
+  field: FieldType
+  mappable?: boolean
+  subField?: boolean
+  onDelete?: () => void
+} & withMakeDraggableAttachesPropTypes
+
+function Field ({
+  field,
+  mappable,
+  subField,
+  onDelete,
+  dndExtras: {
+    setNodeRef,
+    isDragging = false,
+    isOver = false,
+    attributes,
+    style,
+    listeners,
+    data,
+    active,
+    id,
+    inOverlay
+  }
+}: React.PropsWithRef<FieldPropTypes>): JSX.Element {
+  const { updateItem, getItem, getUniqueId, removeItemOfId } = useConfiguredDnd(
+    { inOverlay }
+  )
+
+  if (typeof field === 'string') {
+    field = {
+      name: field,
+      label: field,
+      type: 'string',
+      subFields: []
+    }
+  }
+
+  let { item } = inOverlay ? { item: {} } : getItem(id) || {}
+
+  let { name, label } = field
+  let highlightStyle: { [key: string]: any } = { ...style }
+
+  if (mappable && active?.data?.current?.parentId !== data.parentId) {
+    if (active && !isDragging) {
+      highlightStyle.backgroundColor = 'yellow'
+    }
+    if (isOver && !isDragging) {
+      highlightStyle = {
+        ...highlightStyle,
+        borderColor: 'red',
+        borderStyle: 'solid',
+        borderWidth: '2px'
+      }
+    }
+  }
+
+  // if only one got passed in
+  name = name || label
+  label = label || name
+
+  const finalItem: FieldType = item || field
+  console.log({ id, finalItem, item, field })
+
+  return (
+    <Paper
+      style={highlightStyle}
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+    >
+      <Stack direction='row' padding={1}>
+        {!subField && <DragIndicator />}
+        {subField && <Start />}
+        <Typography>{label}</Typography>
+        {typeof finalItem !== 'string' &&
+          finalItem.subFields &&
+          finalItem.subFields.length > 0 && (
+            <Stack>
+              {mappable && <Add />}
+              {finalItem.subFields.map((sub, index) => {
+                return (
+                  <DroppableField
+                    key={sub.id}
+                    field={sub.field}
+                    subField={true}
+                    mappable={mappable}
+                    onDelete={() => {
+                      const subItem = { ...getItem(id) }
+                      const subFields = [...(subItem.item.subFields || [])]
+                      const [removed] = subFields.splice(index, 1)
+
+                      const newItem = {
+                        ...(typeof sub.field === 'string' ? {} : sub.field),
+                        ...subItem.item,
+                        subFields
+                      }
+
+                      removeItemOfId(removed.id)
+                      updateItem(id, newItem)
+                    }}
+                    dndDroppable={{
+                      id: sub.id,
+                      data: {
+                        parentId: data?.parentId,
+                        onDrop: (onDragEnd: DragEndEvent) => {
+                          if (
+                            onDragEnd.active.data?.current?.parentId ===
+                            data?.parentId
+                          ) {
+                            return
+                          }
+
+                          let activeField = { ...getItem(onDragEnd.active.id) }
+                          if (!activeField) {
+                            return
+                          }
+                          if (typeof activeField.item === 'string') {
+                            activeField.item = {
+                              name: subField,
+                              label: subField
+                            }
+                          }
+
+                          const subItem = { ...getItem(sub.id) }
+                          updateItem(sub.id, {
+                            ...(typeof sub.field === 'string' ? {} : sub.field),
+                            ...subItem.item,
+                            subFields: [
+                              ...(subItem.item.subFields || []),
+                              { id: getUniqueId(), field: activeField.item }
+                            ]
+                          })
+                        }
+                      }
+                    }}
+                  />
+                )
+              })}
+            </Stack>
+          )}
+        {mappable &&
+          (typeof finalItem === 'string' ||
+            !finalItem.subFields ||
+            finalItem.subFields.length === 0) && (
+            <>
+              <Start />
+              <Add />
+            </>
+          )}
+        {subField && (
+          <IconButton aria-label='delete' onClick={onDelete}>
+            <Delete />
+          </IconButton>
+        )}
+      </Stack>
+    </Paper>
+  )
+}
+
+const DroppableField = withMakeDroppable(Field)
+
+const DraggableField = withMakeDraggable(Field)
+
+export default DraggableField
+```
 
 ## Available Scripts
 
@@ -260,6 +646,8 @@ This was pulled out of a larger project I have been working on, as I realized it
 - [StoryComponents/](StoryComponents/readme.md) - Shared story components
 - [useConfiguredDnd/](useConfiguredDnd/readme.md) - A hook for this context
 - [withConfiguredDnd/](withConfiguredDnd/readme.md) - A Higher Order Component for this context
+- [withMakeDraggable/](withMakeDraggable/readme.md) - A Higher Order Component for helping to make draggable components in this system
+- [withMakeDroppable/](withMakeDroppable/readme.md) - A Higher Order Component for helping to make droppable components in this system
 - [.babelrc.json](https://babeljs.io/docs/configuration) - A babel configuration
 - [.gitignore](https://git-scm.com/docs/gitignore) - Files to ignore when checking into source system.
 - [.nvmrc](https://github.com/nvm-sh/nvm) - Specifies the node version for use with node version manager

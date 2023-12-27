@@ -1,5 +1,4 @@
 import { expect, Page } from '@playwright/test'
-import moveMouseRelativeToBoundingBox from './util/moveMouseRelativeToBoundingBox'
 
 async function sortableContainerWithAddAndRemoveDragAndDropsMouse (
   page: Page,
@@ -8,17 +7,19 @@ async function sortableContainerWithAddAndRemoveDragAndDropsMouse (
 ) {
   await page.goto(url)
 
-  const squareA = await page.getByRole('button', { name: 'Drag Me 1-A' })
+  const squareA = await page.getByRole('button', { name: baseName + ' 1-A' })
   const square1 = await page.getByRole('button', {
-    name: 'Drag Me 1',
+    name: baseName + ' 1',
     exact: true
   })
   const square2 = await page.getByRole('button', {
-    name: 'Drag Me 2',
+    name: baseName + ' 2',
     exact: true
   })
 
-  const squareMove = await page.getByRole('button', { name: 'Drag Me Move' })
+  const squareMove = await page.getByRole('button', {
+    name: baseName + ' Move'
+  })
 
   const squareABoundingBox1 = await squareA.boundingBox()
   const square1BoundingBox1 = await square1.boundingBox()
@@ -43,7 +44,7 @@ async function sortableContainerWithAddAndRemoveDragAndDropsMouse (
   // webkit was flakey doing with square1...
   const square1BoundingBox2 = await page
     .getByRole('button', {
-      name: 'Drag Me 1',
+      name: baseName + ' 1',
       exact: true
     })
     .boundingBox()

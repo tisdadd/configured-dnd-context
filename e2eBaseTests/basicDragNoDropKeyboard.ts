@@ -7,7 +7,7 @@ async function basicDragNoDropKeyboard (
 ) {
   await page.goto(url)
 
-  const square = await page.getByRole('button', { name: 'Drag Me' })
+  const square = await page.getByRole('button', { name: baseName + ' ' })
   const position1 = await square.boundingBox()
 
   await page.keyboard.press('Tab')

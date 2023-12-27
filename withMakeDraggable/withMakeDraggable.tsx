@@ -9,13 +9,37 @@ import useConfiguredDnd from '../useConfiguredDnd'
 const emptyDataFunction = () => ({})
 
 type DndDraggableType = {
+  /**
+   * Should this be considered as a Sortable object and interact as such
+   */
   sortable?: boolean
+  /**
+   * An id if we don't want the generated one
+   */
   id?: UniqueIdentifier
+  /**
+   * Data associated with this item
+   */
   data?: object
+  /**
+   * Should the cursor behave differently than grab
+   */
   overCursor?: string
+  /**
+   * Should the cursor behave differently than grabbing
+   */
   draggingCursor?: string
+  /**
+   * Is this an individual item outside of a normal group
+   */
   nonGroupedItem?: boolean
+  /**
+   * Do we want any extra style while dragging?
+   */
   whileDraggingExtraStyle?: object
+  /**
+   * Do we want a function to exist that didn't before?
+   */
   dataFunction?: () => object
 }
 

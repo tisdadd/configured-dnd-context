@@ -5,6 +5,7 @@ import ConfiguredDndContext from '../ConfiguredDndContext'
 import overlayShim from '../ConfiguredDndContext.overlayShim'
 
 type useConfiguredDndInput = {
+  /** Are we currently in an overlay item and should use the overlayShim to avoid console logging */
   inOverlay?: boolean
 }
 

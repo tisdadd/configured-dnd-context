@@ -219,8 +219,11 @@ function ConfiguredDndProvider (props: propTypes) {
         // should exist in the mapping
         return
       }
-      // double setting to make sure that it takes place after copyFix
-      // should someone be using this at onDragEnd
+      // triple setting to make sure that it takes place with data as expected...
+      setItemGroups(priorItemGroups1 => {
+        return { ...priorItemGroups1 }
+      })
+
       setItemGroups(priorItemGroups1 => {
         setItemsToGroupMapping(newItemsToGroupMappings1 => {
           setItemGroups(priorItemGroups => {
@@ -233,13 +236,12 @@ function ConfiguredDndProvider (props: propTypes) {
               ...baseItem,
               item
             })
-
             return newItemGroups
           })
 
           return newItemsToGroupMappings1
         })
-        return { ...priorItemGroups1 }
+        return priorItemGroups1
       })
     },
     [itemsToGroupMapping, setItemGroups]

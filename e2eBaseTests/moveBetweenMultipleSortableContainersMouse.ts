@@ -8,9 +8,9 @@ async function moveBetweenMultipleSortableContainersMouse (
 ) {
   await page.goto(url)
 
-  const square1A = await page.getByRole('button', { name: 'Drag Me 1-A' })
-  const square2B = await page.getByRole('button', { name: 'Drag Me 2-B' })
-  const square2C = await page.getByRole('button', { name: 'Drag Me 2-C' })
+  const square1A = await page.getByRole('button', { name: baseName + ' 1-A' })
+  const square2B = await page.getByRole('button', { name: baseName + ' 2-B' })
+  const square2C = await page.getByRole('button', { name: baseName + ' 2-C' })
 
   const squareABoundingBox1 = await square1A.boundingBox()
   const squareBBoundingBox1 = await square2B.boundingBox()

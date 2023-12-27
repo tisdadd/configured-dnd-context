@@ -8,17 +8,19 @@ async function sortableContainerWithAddAndRemoveDragAndDropsMouse (
 ) {
   await page.goto(url)
 
-  let squareA = await page.getByRole('button', { name: 'Drag Me 1-A' })
+  let squareA = await page.getByRole('button', { name: baseName + ' 1-A' })
   const square1 = await page.getByRole('button', {
-    name: 'Drag Me 1',
+    name: baseName + ' 1',
     exact: true
   })
   const square2 = await page.getByRole('button', {
-    name: 'Drag Me 2',
+    name: baseName + ' 2',
     exact: true
   })
 
-  const squareMove = await page.getByRole('button', { name: 'Drag Me Move' })
+  const squareMove = await page.getByRole('button', {
+    name: baseName + ' Move'
+  })
   const dropZone = await page.getByText(/Drop To Delete/i)
 
   const squareABoundingBox1 = await squareA.boundingBox()
@@ -71,11 +73,11 @@ async function sortableContainerWithAddAndRemoveDragAndDropsMouse (
   }
 
   // delete all squares that can be
-  await deleteSquare('Drag Me 1-A')
-  await deleteSquare('Drag Me 1-B')
-  await deleteSquare('Drag Me 1-C')
-  await deleteSquare('Drag Me 1-D')
-  await deleteSquare('Drag Me 1')
+  await deleteSquare(baseName + ' 1-A')
+  await deleteSquare(baseName + ' 1-B')
+  await deleteSquare(baseName + ' 1-C')
+  await deleteSquare(baseName + ' 1-D')
+  await deleteSquare(baseName + ' 1')
 
   const noItemsBoundingBox = await page.getByText(/No Items/).boundingBox()
 
@@ -96,7 +98,7 @@ async function sortableContainerWithAddAndRemoveDragAndDropsMouse (
   expect((await squareMove.all()).length).toBe(1)
 
   // delete squareMove
-  await deleteSquare(/Drag Me Move/)
+  await deleteSquare(baseName + ' Move')
 }
 
 export default sortableContainerWithAddAndRemoveDragAndDropsMouse
