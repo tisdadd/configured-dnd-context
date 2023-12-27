@@ -285,8 +285,13 @@ export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
                       }
                     },
                     onDragEnd: (dragEndEvent: DragEndEvent) => {
-                      // we ended on delete
-                      if (dragEndEvent.over?.id === 'DropDelete') {
+                      // we ended on someplace we are allowed to drop
+                      if (
+                        dragEndEvent.over &&
+                        ['DragMove', 'DragCopy'].indexOf(
+                          `${dragEndEvent.over?.id}`
+                        ) < 0
+                      ) {
                         setMoved(true)
                       }
                     }

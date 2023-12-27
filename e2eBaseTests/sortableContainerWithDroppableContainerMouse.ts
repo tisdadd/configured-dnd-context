@@ -3,11 +3,12 @@ import moveMouseRelativeToBoundingBox from './util/moveMouseRelativeToBoundingBo
 
 async function sortableContainerWithDroppableContainerMouse (
   page: Page,
-  url: string
+  url: string,
+  baseName: string = 'Drag Me'
 ) {
   await page.goto(url)
 
-  const squareA = await page.getByRole('button', { name: 'Drag Me 1-A' })
+  const squareA = await page.getByRole('button', { name: baseName + ' 1-A' })
   const dropZoneInitial = await page.getByText(/Drop Here/i)
   const dropZoneHover = await page.getByText(/Last Dragged Over Text is 1-A/i)
   const dropZoneDrop = await page.getByText('1-A', { exact: true })

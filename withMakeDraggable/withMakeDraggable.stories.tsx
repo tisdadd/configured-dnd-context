@@ -1,22 +1,74 @@
 import React, { useState } from 'react'
 import { DragEndEvent, DragOverEvent } from '@dnd-kit/core'
 
-import ConfiguredDndProvider from '../ConfiguredDndProvider'
-import useConfiguredDnd from './useConfiguredDnd'
-
 import { Coordinates } from '@dnd-kit/utilities'
-import DragSquare from '../StoryComponents/DragSquare'
 import BasicDroppable from '../StoryComponents/BasicDroppable'
+
+import attachesPropTypes from './withMakeDraggable.attachesPropTypes'
+import withMakeDraggable from './withMakeDraggable'
+
+import Square from '../StoryComponents/Square'
+import ConfiguredDndProvider from '../ConfiguredDndProvider'
 import SortableCollection from '../StoryComponents/SortableCollection'
+import useConfiguredDnd from '../useConfiguredDnd'
 import dndAllowableDropFilterSignature from '../ConfiguredDndProvider/util/dndAllowableDropFilterSignature.type'
 
-export default {
-  component: useConfiguredDnd
+const SquarePass = ({ dndExtras, ...otherProps }: attachesPropTypes) => {
+  const {
+    setNodeRef,
+    style,
+    attributes,
+    listeners,
+    setActivatorNodeRef,
+    isDragging,
+    inOverlay,
+    isOver,
+    activeNodeRect,
+    activatorEvent,
+    setDraggableNodeRef,
+    setDroppableNodeRef,
+    overIndex,
+    isSorting,
+    newIndex,
+    activeIndex,
+    ...rest
+  } = dndExtras
+  return (
+    <Square
+      setNodeRef={setNodeRef}
+      style={{ ...style }}
+      baseText='Square'
+      {...otherProps}
+      {...attributes}
+      {...listeners}
+      {...rest}
+    />
+  )
 }
 
-const InnerDragSquare = (props: any) => {
-  const { id, ...value } = useConfiguredDnd()
-  return <DragSquare value={value} id={id} {...props} />
+const InnerDragSquare = withMakeDraggable(SquarePass)
+
+const SortableDragSquare = props => {
+  return (
+    <InnerDragSquare
+      dndDraggable={{
+        sortable: true,
+        id: props.id,
+        data: {
+          ...props.data,
+          dndCopy: props.dndCopy,
+          dndDisallowContainerChanging: props.dndDisallowContainerChanging,
+          extraText: props.extraText,
+          ...(props.itemDataFunction ? props.itemDataFunction() : {})
+        }
+      }}
+      {...props}
+    />
+  )
+}
+
+export default {
+  component: InnerDragSquare
 }
 
 export const BasicDragNoDrop = () => {
@@ -40,16 +92,18 @@ export const BasicAbsoluteDragCoordinates = () => {
           top: y,
           left: x
         }}
-        itemDataFunction={() => ({
-          onDragEnd: ({ delta }: DragEndEvent) => {
-            setCoordinates(({ x: priorX, y: priorY }) => {
-              return {
-                x: priorX + delta.x,
-                y: priorY + delta.y
-              }
-            })
+        dndDraggable={{
+          data: {
+            onDragEnd: ({ delta }: DragEndEvent) => {
+              setCoordinates(({ x: priorX, y: priorY }) => {
+                return {
+                  x: priorX + delta.x,
+                  y: priorY + delta.y
+                }
+              })
+            }
           }
-        })}
+        }}
       />
     </ConfiguredDndProvider>
   )
@@ -60,7 +114,7 @@ export const BasicSortableCollection = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-      <SortableCollection value={value} />
+      <SortableCollection Component={SortableDragSquare} value={value} />
     </div>
   )
 }
@@ -70,9 +124,21 @@ export const MoveBetweenMultipleSortableCollections = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-      <SortableCollection value={value} prefix='1-' />
-      <SortableCollection value={value} prefix='2-' />
-      <SortableCollection value={value} prefix='3-' />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='1-'
+      />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='2-'
+      />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='3-'
+      />
     </div>
   )
 }
@@ -82,9 +148,24 @@ export const CopyBetweenMultipleSortableCollections = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-      <SortableCollection value={value} prefix='1-' dndCopy={true} />
-      <SortableCollection value={value} prefix='2-' dndCopy={true} />
-      <SortableCollection value={value} prefix='3-' dndCopy={true} />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='1-'
+        dndCopy={true}
+      />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='2-'
+        dndCopy={true}
+      />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='3-'
+        dndCopy={true}
+      />
     </div>
   )
 }
@@ -93,9 +174,22 @@ export const FirstContainerCopiesFromOthersMoveOnly = () => {
   const { id, ...value } = useConfiguredDnd()
   return (
     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-      <SortableCollection value={value} prefix='1-' dndCopy={true} />
-      <SortableCollection value={value} prefix='2-' />
-      <SortableCollection value={value} prefix='3-' />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='1-'
+        dndCopy={true}
+      />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='2-'
+      />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='3-'
+      />
     </div>
   )
 }
@@ -106,16 +200,19 @@ export const MultipleSortableContainersWithoutMovingBetweenThem = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
       <SortableCollection
+        Component={SortableDragSquare}
         value={value}
         prefix='1-'
         dndDisallowContainerChanging={true}
       />
       <SortableCollection
+        Component={SortableDragSquare}
         value={value}
         prefix='2-'
         dndDisallowContainerChanging={true}
       />
       <SortableCollection
+        Component={SortableDragSquare}
         value={value}
         prefix='3-'
         dndDisallowContainerChanging={true}
@@ -130,6 +227,7 @@ export const DragOnlyToContainerOneRight = () => {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
       <SortableCollection
+        Component={SortableDragSquare}
         value={value}
         prefix='1-'
         data={{
@@ -149,6 +247,7 @@ export const DragOnlyToContainerOneRight = () => {
         }}
       />
       <SortableCollection
+        Component={SortableDragSquare}
         value={value}
         prefix='2-'
         data={{
@@ -168,6 +267,7 @@ export const DragOnlyToContainerOneRight = () => {
         }}
       />
       <SortableCollection
+        Component={SortableDragSquare}
         value={value}
         prefix='3-'
         data={{
@@ -195,61 +295,83 @@ export const SortableContainerWithDroppableContainer = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-      <SortableCollection value={value} prefix='1-' />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='1-'
+      />
       <BasicDroppable value={value} />
     </div>
   )
 }
 
 export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
-  const [sample, setSample] = useState<number>(1)
   const [moved, setMoved] = useState<boolean>(false)
   const { id, ...value } = useConfiguredDnd()
 
+  const { item } = value.getItem('DragCopy') || {
+    item: {
+      extraText: 1
+    }
+  }
+
   return (
     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-      <DragSquare
-        sortable={true}
-        dndCopy={true}
-        extraText={`${sample}`}
-        value={value}
-        id='DragCopy'
-        selfContained={true}
-        itemDataFunction={() => ({
-          onDragEnd: () => {
-            setSample(sample + 1)
+      <InnerDragSquare
+        dndDraggable={{
+          sortable: true,
+          id: 'DragCopy',
+          nonGroupedItem: true,
+          data: {
+            dndCopy: true,
+            onDragEnd: (dragEndEvent: DragEndEvent) => {
+              value.updateItem('DragCopy', { extraText: item.extraText + 1 })
+            },
+            extraText: item.extraText || 1
           }
-        })}
+        }}
+        extraText={`${item.extraText}`}
+        value={value}
       />
       {!moved && (
-        <DragSquare
-          sortable={true}
+        <InnerDragSquare
+          dndDraggable={{
+            sortable: true,
+            extraText: `Move`,
+            id: 'DragMove',
+            nonGroupedItem: true,
+            data: {
+              onDragOver: (dragOverEvent: DragOverEvent) => {
+                // we have moved to a sortable list
+                if (
+                  dragOverEvent.over &&
+                  dragOverEvent.over?.data?.current?.sortable?.index > -1
+                ) {
+                  setMoved(true)
+                }
+              },
+              onDragEnd: (dragEndEvent: DragEndEvent) => {
+                // we ended on delete
+                if (
+                  dragEndEvent.over &&
+                  ['DragMove', 'DragCopy'].indexOf(`${dragEndEvent.over?.id}`) <
+                    0
+                ) {
+                  setMoved(true)
+                }
+              },
+              extraText: 'Move'
+            }
+          }}
           extraText={`Move`}
           value={value}
-          id='DragMove'
-          selfContained={true}
-          itemDataFunction={() => ({
-            onDragOver: (dragOverEvent: DragOverEvent) => {
-              // we have moved to a sortable list
-              if (
-                dragOverEvent.over &&
-                dragOverEvent.over?.data?.current?.sortable?.index > -1
-              ) {
-                setMoved(true)
-              }
-            },
-            onDragEnd: (dragEndEvent: DragEndEvent) => {
-              if (
-                dragEndEvent.over &&
-                ['DragMove', 'DragCopy'].indexOf(`${dragEndEvent.over?.id}`) < 0
-              ) {
-                setMoved(true)
-              }
-            }
-          })}
         />
       )}
-      <SortableCollection value={value} prefix='1-' />
+      <SortableCollection
+        Component={SortableDragSquare}
+        value={value}
+        prefix='1-'
+      />
       <BasicDroppable
         value={value}
         id='DropDelete'
