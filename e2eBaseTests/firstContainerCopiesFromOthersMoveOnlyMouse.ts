@@ -3,13 +3,14 @@ import moveMouseRelativeToBoundingBox from './util/moveMouseRelativeToBoundingBo
 
 async function firstContainerCopiesFromOthersMoveOnlyMouse (
   page: Page,
-  url: string
+  url: string,
+  baseName: string = 'Drag Me'
 ) {
   await page.goto(url)
 
-  const square1A = await page.getByRole('button', { name: 'Drag Me 1-A' })
-  const square2B = await page.getByRole('button', { name: 'Drag Me 2-B' })
-  const square3C = await page.getByRole('button', { name: 'Drag Me 3-C' })
+  const square1A = await page.getByRole('button', { name: baseName + ' 1-A' })
+  const square2B = await page.getByRole('button', { name: baseName + ' 2-B' })
+  const square3C = await page.getByRole('button', { name: baseName + ' 3-C' })
 
   const squareABoundingBox1 = await square1A.boundingBox()
   const squareBBoundingBox1 = await square2B.boundingBox()

@@ -4,11 +4,13 @@ type SquareProps = {
   style?: object
   setNodeRef?: null | ((node: HTMLElement | null) => void)
   extraText?: string
+  baseText?: string
 }
 
 const Square = ({
   style = {},
   setNodeRef = null,
+  baseText = 'Drag Me',
   extraText = '',
   ...props
 }: React.PropsWithChildren<SquareProps>) => (
@@ -29,7 +31,7 @@ const Square = ({
     ref={setNodeRef}
     {...props}
   >
-    Drag Me {extraText}
+    {baseText} {extraText}
   </div>
 )
 

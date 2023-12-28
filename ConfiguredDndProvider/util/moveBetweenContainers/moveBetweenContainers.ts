@@ -41,10 +41,16 @@ const moveBetweenContainers = ({
   }
 
   let newItemsToGroupAndIndex: ItemToGroupAndIndex = {}
+  let startIndex = overIndex
+  if (newItemGroups[overContainer].length >= startIndex) {
+    startIndex--
+  }
   // replace items after this one in overContainer
-  for (let i = overIndex; i < newItemGroups[overContainer].length; i++) {
-    newItemsToGroupAndIndex[newItemGroups[overContainer][i].id] = {
-      [overContainer]: i
+  for (let i = startIndex; i < newItemGroups[overContainer].length; i++) {
+    if (newItemGroups[overContainer][i]) {
+      newItemsToGroupAndIndex[newItemGroups[overContainer][i].id] = {
+        [overContainer]: i
+      }
     }
   }
   // replace items after this one

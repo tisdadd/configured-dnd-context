@@ -618,6 +618,285 @@ const DraggableField = withMakeDraggable(Field)
 export default DraggableField
 ```
 
+### A component using this System
+
+Below is an example component that this system is being developed around, should someone want to see a bit more on the why.
+
+```tsx
+// FieldSet.tsx
+import React, { useEffect } from 'react'
+import { Paper, Typography, Stack } from '@mui/material'
+import { useDroppable } from '@dnd-kit/core'
+
+import { useConfiguredDnd } from 'configured-dnd-context'
+
+import { DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
+
+import FieldSetProps from './FieldSet.propTypes'
+
+import Field from './components/Field'
+
+function FieldSet ({ fields = [], mappable, title }: FieldSetProps) {
+  const {
+    registerItemGroup,
+    getItemGroup,
+    updateItem,
+    id,
+    getItem,
+    getUniqueId
+  } = useConfiguredDnd()
+
+  const { setNodeRef } = useDroppable({ id })
+
+  useEffect(() => {
+    if (id) {
+      registerItemGroup({ id, items: fields, itemPrefix: 'field-' })
+    }
+  }, [id, fields])
+
+  const items = getItemGroup(id)
+
+  return (
+    <Paper>
+      <Typography variant='h6'>{title}</Typography>
+      <SortableContext
+        id={`${id}`}
+        items={items.map(({ id }) => id)}
+        strategy={rectSortingStrategy}
+      >
+        <Stack
+          ref={setNodeRef}
+          style={{ minWidth: '100px', minHeight: '100px', height: '100%' }}
+        >
+          {items.map(({ id: fieldId, item }) => (
+            <Field
+              dndDraggable={{
+                sortable: true,
+                id: fieldId,
+                data: {
+                  dndDisallowContainerChanging: true,
+                  parentId: id,
+                  onDrop: (onDragEnd: DragEndEvent) => {
+                    if (onDragEnd.active.data?.current?.parentId === id) {
+                      return
+                    }
+
+                    if (typeof item === 'string') {
+                      item = {
+                        name: item,
+                        label: item
+                      }
+                    }
+                    let subField = { ...getItem(onDragEnd.active.id) }
+                    if (!subField) {
+                      return
+                    }
+                    updateItem(fieldId, {
+                      ...item,
+                      subFields: [
+                        ...(item.subFields || []),
+                        { id: getUniqueId(), field: subField.item }
+                      ]
+                    })
+                  }
+                }
+              }}
+              key={fieldId}
+              field={item}
+              mappable={mappable}
+            />
+          ))}
+        </Stack>
+      </SortableContext>
+    </Paper>
+  )
+}
+
+export default FieldSet
+
+
+// Field.tsx
+import React from 'react'
+import { Paper, Typography, Stack, IconButton } from '@mui/material'
+import { DragIndicator, Start, Add, Delete } from '@mui/icons-material'
+
+import FieldType from './Field.type'
+import {
+  useConfiguredDnd,
+  withMakeDroppable,
+  withMakeDraggable,
+  withMakeDraggableAttachesPropTypes
+} from 'configured-dnd-context'
+import { DragEndEvent } from '@dnd-kit/core'
+
+type FieldPropTypes = {
+  field: FieldType
+  mappable?: boolean
+  subField?: boolean
+  onDelete?: () => void
+} & withMakeDraggableAttachesPropTypes
+
+function Field ({
+  field,
+  mappable,
+  subField,
+  onDelete,
+  dndExtras: {
+    setNodeRef,
+    isDragging = false,
+    isOver = false,
+    attributes,
+    style,
+    listeners,
+    data,
+    active,
+    id,
+    inOverlay
+  }
+}: React.PropsWithRef<FieldPropTypes>): JSX.Element {
+  const { updateItem, getItem, getUniqueId, removeItemOfId } = useConfiguredDnd(
+    { inOverlay }
+  )
+
+  if (typeof field === 'string') {
+    field = {
+      name: field,
+      label: field,
+      type: 'string',
+      subFields: []
+    }
+  }
+
+  let { item } = inOverlay ? { item: {} } : getItem(id) || {}
+
+  let { name, label } = field
+  let highlightStyle: { [key: string]: any } = { ...style }
+
+  if (mappable && active?.data?.current?.parentId !== data.parentId) {
+    if (active && !isDragging) {
+      highlightStyle.backgroundColor = 'yellow'
+    }
+    if (isOver && !isDragging) {
+      highlightStyle = {
+        ...highlightStyle,
+        borderColor: 'red',
+        borderStyle: 'solid',
+        borderWidth: '2px'
+      }
+    }
+  }
+
+  // if only one got passed in
+  name = name || label
+  label = label || name
+
+  const finalItem: FieldType = item || field
+  console.log({ id, finalItem, item, field })
+
+  return (
+    <Paper
+      style={highlightStyle}
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+    >
+      <Stack direction='row' padding={1}>
+        {!subField && <DragIndicator />}
+        {subField && <Start />}
+        <Typography>{label}</Typography>
+        {typeof finalItem !== 'string' &&
+          finalItem.subFields &&
+          finalItem.subFields.length > 0 && (
+            <Stack>
+              {mappable && <Add />}
+              {finalItem.subFields.map((sub, index) => {
+                return (
+                  <DroppableField
+                    key={sub.id}
+                    field={sub.field}
+                    subField={true}
+                    mappable={mappable}
+                    onDelete={() => {
+                      const subItem = { ...getItem(id) }
+                      const subFields = [...(subItem.item.subFields || [])]
+                      const [removed] = subFields.splice(index, 1)
+
+                      const newItem = {
+                        ...(typeof sub.field === 'string' ? {} : sub.field),
+                        ...subItem.item,
+                        subFields
+                      }
+
+                      removeItemOfId(removed.id)
+                      updateItem(id, newItem)
+                    }}
+                    dndDroppable={{
+                      id: sub.id,
+                      data: {
+                        parentId: data?.parentId,
+                        onDrop: (onDragEnd: DragEndEvent) => {
+                          if (
+                            onDragEnd.active.data?.current?.parentId ===
+                            data?.parentId
+                          ) {
+                            return
+                          }
+
+                          let activeField = { ...getItem(onDragEnd.active.id) }
+                          if (!activeField) {
+                            return
+                          }
+                          if (typeof activeField.item === 'string') {
+                            activeField.item = {
+                              name: subField,
+                              label: subField
+                            }
+                          }
+
+                          const subItem = { ...getItem(sub.id) }
+                          updateItem(sub.id, {
+                            ...(typeof sub.field === 'string' ? {} : sub.field),
+                            ...subItem.item,
+                            subFields: [
+                              ...(subItem.item.subFields || []),
+                              { id: getUniqueId(), field: activeField.item }
+                            ]
+                          })
+                        }
+                      }
+                    }}
+                  />
+                )
+              })}
+            </Stack>
+          )}
+        {mappable &&
+          (typeof finalItem === 'string' ||
+            !finalItem.subFields ||
+            finalItem.subFields.length === 0) && (
+            <>
+              <Start />
+              <Add />
+            </>
+          )}
+        {subField && (
+          <IconButton aria-label='delete' onClick={onDelete}>
+            <Delete />
+          </IconButton>
+        )}
+      </Stack>
+    </Paper>
+  )
+}
+
+const DroppableField = withMakeDroppable(Field)
+
+const DraggableField = withMakeDraggable(Field)
+
+export default DraggableField
+```
+
 ## Available Scripts
 
 - `npm run storybook` - Runs just the [storybook development server](http://localhost:6006/).
