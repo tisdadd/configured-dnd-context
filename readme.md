@@ -792,7 +792,6 @@ function Field ({
   label = label || name
 
   const finalItem: FieldType = item || field
-  console.log({ id, finalItem, item, field })
 
   return (
     <Paper
