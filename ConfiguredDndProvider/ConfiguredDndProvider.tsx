@@ -40,6 +40,7 @@ function ConfiguredDndProvider (props: propTypes) {
     getUniqueId: propsGetUniqueId,
     draggingCursor = 'grabbing',
     dragOverlayProps,
+    maintainOriginalIds = false,
     ...dndOriginalProps
   } = props
 
@@ -288,7 +289,8 @@ function ConfiguredDndProvider (props: propTypes) {
         active,
         getUniqueId,
         setItemsToGroupMapping,
-        itemsToGroupMapping
+        itemsToGroupMapping,
+        defaultMaintainOriginalIds: maintainOriginalIds
       }),
     [
       setItemGroups,
@@ -299,7 +301,8 @@ function ConfiguredDndProvider (props: propTypes) {
       active,
       getUniqueId,
       setItemsToGroupMapping,
-      itemsToGroupMapping
+      itemsToGroupMapping,
+      maintainOriginalIds
     ]
   )
 
@@ -308,13 +311,13 @@ function ConfiguredDndProvider (props: propTypes) {
       createHandleDragEnd({
         setItemGroups,
         setActive,
-        dragStartContainerId,
         active,
         getItemGroupData,
         defaultBodyCursor,
         getUniqueId,
         setItemsToGroupMapping,
-        itemsToGroupMapping
+        itemsToGroupMapping,
+        defaultMaintainOriginalIds: maintainOriginalIds
       }),
     [
       setItemGroups,
@@ -325,7 +328,8 @@ function ConfiguredDndProvider (props: propTypes) {
       defaultBodyCursor,
       getUniqueId,
       setItemsToGroupMapping,
-      itemsToGroupMapping
+      itemsToGroupMapping,
+      maintainOriginalIds
     ]
   )
 
@@ -339,7 +343,8 @@ function ConfiguredDndProvider (props: propTypes) {
     getNonGroupedItem,
     active,
     updateItem,
-    getItem
+    getItem,
+    inDefaultProvider: false
   }
 
   return (

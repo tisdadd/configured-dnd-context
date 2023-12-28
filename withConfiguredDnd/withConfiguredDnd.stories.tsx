@@ -115,9 +115,22 @@ export const FirstContainerCopiesFromOthersMoveOnly = withConfiguredDnd(
     } = props
     return (
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <SortableCollection value={value} prefix='1-' dndCopy={true} />
-        <SortableCollection value={value} prefix='2-' />
-        <SortableCollection value={value} prefix='3-' />
+        <SortableCollection
+          dndMaintainOriginalId={true}
+          value={value}
+          prefix='1-'
+          dndCopy={true}
+        />
+        <SortableCollection
+          dndMaintainOriginalId={true}
+          value={value}
+          prefix='2-'
+        />
+        <SortableCollection
+          dndMaintainOriginalId={true}
+          value={value}
+          prefix='3-'
+        />
       </div>
     )
   }
@@ -250,6 +263,7 @@ export const SortableContainerWithAddAndRemoveDragAndDrops = withConfiguredDnd(
         <DragSquare
           sortable={true}
           dndCopy={true}
+          dndMaintainOriginalId={true}
           extraText={`${sample}`}
           value={value}
           id='DragCopy'

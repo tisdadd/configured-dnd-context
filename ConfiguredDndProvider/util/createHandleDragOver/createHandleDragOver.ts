@@ -19,6 +19,7 @@ type createHandleDragOverInput = {
   getUniqueId: () => UniqueIdentifier
   setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
   itemsToGroupMapping: ItemToGroupAndIndex
+  defaultMaintainOriginalIds: boolean
 }
 
 const createHandleDragOver = ({
@@ -30,7 +31,8 @@ const createHandleDragOver = ({
   active: originalActive,
   getUniqueId,
   setItemsToGroupMapping,
-  itemsToGroupMapping
+  itemsToGroupMapping,
+  defaultMaintainOriginalIds = false
 }: createHandleDragOverInput) => {
   const handleDragOver = (dragOverEvent: DragOverEvent) => {
     const { active, over } = dragOverEvent
@@ -80,7 +82,13 @@ const createHandleDragOver = ({
                   itemsToGroupMapping,
                   setItemsToGroupMapping,
                   active,
-                  removedItem
+                  removedItem,
+                  maintainOriginalIds:
+                    originalActive?.data?.current?.dndMaintainOriginalId ===
+                      true ||
+                    (originalActive?.data?.current?.dndMaintainOriginalId !==
+                      false &&
+                      defaultMaintainOriginalIds)
                 })
               }
 

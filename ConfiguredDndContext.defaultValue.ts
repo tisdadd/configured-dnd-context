@@ -8,6 +8,7 @@ const { itemGroups, itemGroupsData, ...remainingState } = defaultState
 
 export default {
   ...remainingState,
+  inDefaultProvider: true,
   registerItemGroup: (input: RegisterItemGroupTypeFunctionParameters) => {
     console.log(
       `Please wrap in ConfiguredDndProvider for real functionality - received ${JSON.stringify(

@@ -8,6 +8,7 @@ const { itemGroups, itemGroupsData, ...remainingState } = defaultState
 
 export default {
   ...remainingState,
+  inDefaultProvider: true,
   registerItemGroup: (input: RegisterItemGroupTypeFunctionParameters) => {},
   getItemGroup: (id: UniqueIdentifier) => {
     return [] as ContainerItem[]

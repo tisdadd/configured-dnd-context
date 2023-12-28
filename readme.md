@@ -31,6 +31,11 @@ Note that this provider includes the [DndContext](https://docs.dndkit.com/api-do
 interface ConfiguredDndProviderPropTypes extends DndContextProps {
   /** Want a different dragging cursor? Do it here! */
   draggingCursor?: string
+  /**
+   * Do you want to maintain original ids by default?
+   * When copying an element via dndCopy, this leads to the overlay showing the item going back to where it came from.
+   */
+  maintainOriginalIds?: boolean
   /** Want a different method for generating unique ids? */
   getUniqueId?: () => UniqueIdentifier
   /** Want to add props to the drag overlay? */
@@ -107,6 +112,9 @@ type updateItem: (id: UniqueIdentifier, item: any) => void
 
 /** Get any item by id  */
 type getItem: (id: UniqueIdentifier) => ContainerItem
+
+/** Are you in the default provider (if so, that would mean also in the overlay) */
+inDefaultProvider: boolean
 ```
 
 #### useConfiguredDnd Hook
@@ -195,6 +203,11 @@ In the HOC sample above, we see some extra things in the `useDraggable` hook dat
 ```ts
 /** If true, this should copy to containers (SortableContext) when dropping to them, not just move */
 dndCopy?: boolean
+/**
+ * Do you want to maintain this elements original id?
+ * When copying an element via dndCopy, this leads to the overlay showing the item going back to where it came from.
+ */
+dndMaintainOriginalId?: boolean
 /** If true, this shouldn't be allowed to change what container it is in on drop*/
 dndDisallowContainerChanging?: boolean
 /** What to render to the overlay when this is the active item */

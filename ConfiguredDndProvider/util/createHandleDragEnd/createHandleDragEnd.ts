@@ -12,25 +12,25 @@ import copyFix from '../copyFix'
 type createHandleDragEndInput = {
   setItemGroups: Dispatch<SetStateAction<ItemGroups>>
   setActive: Dispatch<SetStateAction<Active | null>>
-  dragStartContainerId: UniqueIdentifier | null
   active: Active | null
   getItemGroupData: (id: UniqueIdentifier) => any
   defaultBodyCursor: string
   getUniqueId: () => UniqueIdentifier
   setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
   itemsToGroupMapping: ItemToGroupAndIndex
+  defaultMaintainOriginalIds?: boolean
 }
 
 const createHandleDragEnd = ({
   setItemGroups,
   setActive,
-  dragStartContainerId,
   active: originalActive,
   getItemGroupData,
   defaultBodyCursor,
   getUniqueId,
   setItemsToGroupMapping,
-  itemsToGroupMapping
+  itemsToGroupMapping,
+  defaultMaintainOriginalIds = false
 }: createHandleDragEndInput) => {
   const handleDragEnd = (dragEndEvent: DragEndEvent) => {
     setActive(null)
@@ -41,7 +41,11 @@ const createHandleDragEnd = ({
         setItemGroups,
         itemsToGroupMapping,
         setItemsToGroupMapping,
-        active
+        active,
+        maintainOriginalIds:
+          originalActive?.data?.current?.dndMaintainOriginalId === true ||
+          (originalActive?.data?.current?.dndMaintainOriginalId !== false &&
+            defaultMaintainOriginalIds)
       })
     }
 

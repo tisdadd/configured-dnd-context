@@ -22,6 +22,11 @@ export interface DraggableDataExtras {
   renderOverlayItem?: () => React.JSX.Element
   /** Return true if this item is allowed to drop to the given container, false otherwise */
   dndAllowableDropFilter?: dndAllowableDropFilterSignature
+  /**
+   * Do you want to maintain this elements original id?
+   * When copying an element via dndCopy, this leads to the overlay showing the item going back to where it came from.
+   */
+  dndMaintainOriginalId?: boolean
   /** What to do when this item moves over another - it is a hook into the DndContext onDragOver with this item
    * being the active one
    */

@@ -57,6 +57,7 @@ const SortableDragSquare = props => {
         data: {
           ...props.data,
           dndCopy: props.dndCopy,
+          dndMaintainOriginalId: true,
           dndDisallowContainerChanging: props.dndDisallowContainerChanging,
           extraText: props.extraText,
           ...(props.itemDataFunction ? props.itemDataFunction() : {})
@@ -324,6 +325,7 @@ export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
           nonGroupedItem: true,
           data: {
             dndCopy: true,
+            dndMaintainOriginalId: true,
             onDragEnd: (dragEndEvent: DragEndEvent) => {
               value.updateItem('DragCopy', { extraText: item.extraText + 1 })
             },

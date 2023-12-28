@@ -16,6 +16,7 @@ type SortableCollectionProps = {
   prefix?: string
   dndCopy?: boolean
   dndDisallowContainerChanging?: boolean
+  dndMaintainOriginalId?: boolean
   data?: any
   itemDataFunction?: () => any
   Component?: ComponentType<P>
@@ -26,6 +27,7 @@ const SortableCollection = <P extends object>({
   prefix = '',
   dndCopy = false,
   dndDisallowContainerChanging = false,
+  dndMaintainOriginalId,
   data = {},
   itemDataFunction = () => {
     return {}
@@ -57,6 +59,7 @@ const SortableCollection = <P extends object>({
             value={value}
             sortable={true}
             dndCopy={dndCopy}
+            dndMaintainOriginalId={dndMaintainOriginalId}
             copiedFromId={copiedFromId}
             dndDisallowContainerChanging={dndDisallowContainerChanging}
             // simple way to pass down further

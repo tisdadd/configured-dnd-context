@@ -10,6 +10,7 @@ type copyFixInput = {
   itemsToGroupMapping: ItemToGroupAndIndex
   active: Active
   removedItem?: ContainerItem
+  maintainOriginalIds?: boolean
 }
 
 const copyFix = ({
@@ -17,7 +18,8 @@ const copyFix = ({
   itemsToGroupMapping,
   setItemsToGroupMapping,
   active,
-  removedItem
+  removedItem,
+  maintainOriginalIds = false
 }: copyFixInput) => {
   setItemGroups(itemGroups => {
     let newItems = { ...itemGroups }
@@ -37,7 +39,10 @@ const copyFix = ({
         id,
         ...restEnd
       } = endItem
-      newItems[endContainerId][endIndex] = { id: copiedFromId, ...restEnd }
+      newItems[endContainerId][endIndex] = {
+        id: maintainOriginalIds ? copiedFromId : id,
+        ...restEnd
+      }
       newGroupMappings[copiedFromId] = { [endContainerId]: endIndex }
 
       // get original item index and such
@@ -53,7 +58,10 @@ const copyFix = ({
           id: startId,
           ...restStart
         } = startItem
-        newItems[startContainerId][startIndex] = { id, ...restStart }
+        newItems[startContainerId][startIndex] = {
+          id: maintainOriginalIds ? id : startId,
+          ...restStart
+        }
         newGroupMappings[id] = { [startContainerId]: startIndex }
       }
       setItemsToGroupMapping(priorGroupMapping => ({

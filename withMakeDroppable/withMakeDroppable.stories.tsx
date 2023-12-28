@@ -81,6 +81,7 @@ export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
       <DragSquare
         sortable={true}
         dndCopy={true}
+        dndMaintainOriginalId={true}
         extraText={`${sample}`}
         value={value}
         id='DragCopy'

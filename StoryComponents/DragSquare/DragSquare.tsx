@@ -18,6 +18,7 @@ type DragSquarePropTypes = {
   itemDataFunction?: () => any
   selfContained?: boolean
   style?: object
+  dndMaintainOriginalId?: boolean
 }
 
 const DragSquare = ({
@@ -26,6 +27,7 @@ const DragSquare = ({
   id: propId,
   sortable,
   dndCopy,
+  dndMaintainOriginalId,
   dndDisallowContainerChanging,
   copiedFromId,
   itemDataFunction,
@@ -74,6 +76,7 @@ const DragSquare = ({
     data: {
       renderOverlayItem,
       dndCopy,
+      dndMaintainOriginalId,
       dndDisallowContainerChanging,
       extraText,
       ...extraItemData

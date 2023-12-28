@@ -113,7 +113,7 @@ export const CopyBetweenMultipleSortableCollections = () => {
 
 export const FirstContainerCopiesFromOthersMoveOnly = () => {
   return (
-    <ConfiguredDndProvider>
+    <ConfiguredDndProvider maintainOriginalIds={true}>
       <ConfiguredDndContext.Consumer>
         {value => {
           return (
@@ -246,7 +246,7 @@ export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
   const [moved, setMoved] = useState<boolean>(false)
 
   return (
-    <ConfiguredDndProvider>
+    <ConfiguredDndProvider maintainOriginalIds={true}>
       <ConfiguredDndContext.Consumer>
         {value => {
           return (
@@ -254,6 +254,7 @@ export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
               <DragSquare
                 sortable={true}
                 dndCopy={true}
+                dndMaintainOriginalId={true}
                 extraText={`${value.getItem('DragCopy')?.item || 1}`}
                 value={value}
                 id='DragCopy'
