@@ -46,6 +46,34 @@ async function copyBetweenMultipleSortableContainersMouse (
 
   // and original square should be where it was
   expect(squareABoundingBox1).toStrictEqual(await square1A.nth(0).boundingBox())
+
+  // also, should be able to drag over two columns and drop on the second
+
+  const square1D = await page.getByRole('button', { name: baseName + ' 1-D' })
+  const square3C = await page.getByRole('button', { name: baseName + ' 3-C' })
+
+  await square1D.hover()
+  await page.mouse.down()
+  await page.waitForTimeout(201)
+  await moveMouseRelativeToBoundingBox(page, squareCBoundingBox1, {
+    x: 0,
+    y: (squareABoundingBox1?.height || 0) * 1.5
+  })
+  await page.waitForTimeout(201)
+
+  const square3CBoundingBox = await square3C.boundingBox()
+
+  await moveMouseRelativeToBoundingBox(page, square3CBoundingBox, {
+    x: 0,
+    y: 0
+  })
+
+  await page.mouse.up()
+  await page.waitForTimeout(1001)
+
+  const square1DCopiedBoundingBox = await square1D.nth(1).boundingBox()
+  // should be in the same column
+  expect(square1DCopiedBoundingBox?.x).toBe(square3CBoundingBox?.x)
 }
 
 export default copyBetweenMultipleSortableContainersMouse

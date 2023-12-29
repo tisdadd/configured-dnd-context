@@ -75,12 +75,7 @@ const createHandleDragOver = ({
                   setItemGroups,
                   active,
                   removedItem,
-                  maintainOriginalIds:
-                    originalActive?.data?.current?.dndMaintainOriginalId ===
-                      true ||
-                    (originalActive?.data?.current?.dndMaintainOriginalId !==
-                      false &&
-                      defaultMaintainOriginalIds)
+                  maintainOriginalIds: true
                 })
               }
 
