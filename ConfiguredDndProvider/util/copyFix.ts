@@ -27,9 +27,12 @@ const copyFix = ({
     let newGroupMappings: ItemToGroupAndIndex = {}
 
     const [[endContainerId, endIndex]] = Object.entries(
-      itemsToGroupMapping[active.id] || {}
+      itemsToGroupMapping[active.id] || [{}]
     )
-    const endItem = newItems[endContainerId][endIndex] || removedItem
+    const endItem =
+      newItems && newItems[endContainerId]
+        ? newItems[endContainerId][endIndex] || removedItem
+        : removedItem
 
     if (endItem && endItem.copiedFromContainer && endItem.copiedFromId) {
       // end item was copied

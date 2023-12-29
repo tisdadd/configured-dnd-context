@@ -20,6 +20,25 @@ async function copyBetweenMultipleSortableContainersMouse (
   expect(squareBBoundingBox1?.y).toBeLessThan(squareCBoundingBox1?.y || 0)
   expect(squareABoundingBox1?.x).toBeLessThan(squareBBoundingBox1?.x || 0)
 
+  // move to middle location and back again - shouldn't throw errors that screw up the rest of the report
+  await square1A.hover()
+  await page.mouse.down()
+  await page.waitForTimeout(201)
+  await moveMouseRelativeToBoundingBox(page, squareCBoundingBox1, {
+    x: 0,
+    y: (squareABoundingBox1?.height || 0) * 1.5
+  })
+  await page.waitForTimeout(201)
+  await moveMouseRelativeToBoundingBox(page, squareABoundingBox1, {
+    x: 0,
+    y: 0
+  })
+  await page.waitForTimeout(201)
+  await page.mouse.up()
+
+  await page.waitForTimeout(1001)
+
+  // move to middle location
   await square1A.hover()
   await page.mouse.down()
   await page.waitForTimeout(201)
