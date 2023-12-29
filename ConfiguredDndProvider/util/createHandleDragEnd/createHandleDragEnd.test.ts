@@ -33,36 +33,38 @@ const basicActive: Active = {
 const defaultBodyCursor = ''
 
 describe('createHandleDragEnd', () => {
-  let setItemGroups: Dispatch<SetStateAction<ItemGroups>>
+  let setItemGroups: Dispatch<
+    SetStateAction<{
+      itemGroups: ItemGroups
+      itemsToGroupMapping: ItemToGroupAndIndex
+    }>
+  >
   let setActive: Dispatch<SetStateAction<Active | null>>
   let getItemGroupData: getItemGroupDataSignature
-  let setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
-  let itemsToGroupMapping: ItemToGroupAndIndex
   let testItems
+  let itemsToGroupMapping
 
   beforeEach(() => {
     testItems = getBaseItems()
     itemsToGroupMapping = itemGroupsToMapping(testItems)
-    setItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testItems = setItemGroupsFunction(testItems)
-        }
-      }
-    )
+    setItemGroups = jest.fn<
+      Dispatch<
+        SetStateAction<{
+          itemGroups: ItemGroups
+          itemsToGroupMapping: ItemToGroupAndIndex
+        }>
+      >
+    >(setItemGroupsFunction => {
+      if (typeof setItemGroupsFunction === 'function') {
+        const { itemGroups: testItemGroups, itemsToGroupMapping: testMapping } =
+          setItemGroupsFunction({ itemGroups: testItems, itemsToGroupMapping })
 
-    // setItemGroups = jest.fn()
-    setActive = jest.fn()
-    setItemsToGroupMapping = jest.fn<
-      Dispatch<SetStateAction<ItemToGroupAndIndex>>
-    >(setItemsToGroupMappingFunction => {
-      if (typeof setItemsToGroupMappingFunction === 'function') {
-        let newMappings = setItemsToGroupMappingFunction(itemsToGroupMapping)
-        Object.entries(newMappings).forEach(([key, value]) => {
-          itemsToGroupMapping[key] = value
-        })
+        itemsToGroupMapping = testMapping
+        testItems = testItemGroups
       }
     })
+    // setItemGroups = jest.fn()
+    setActive = jest.fn()
     getItemGroupData = jest.fn<getItemGroupDataSignature>()
   })
 
@@ -70,13 +72,10 @@ describe('createHandleDragEnd', () => {
     const handleDragEnd = createHandleDragEnd({
       setItemGroups: jest.fn(),
       setActive,
-      dragStartContainerId: FIRST_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -89,13 +88,10 @@ describe('createHandleDragEnd', () => {
     const handleDragEnd = createHandleDragEnd({
       setItemGroups: jest.fn(),
       setActive,
-      dragStartContainerId: FIRST_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor: cursor,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -118,13 +114,11 @@ describe('createHandleDragEnd', () => {
     const handleDragEnd = createHandleDragEnd({
       setItemGroups: jest.fn(),
       setActive,
-      dragStartContainerId: FIRST_CONTAINER_ID,
+
       active,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -147,13 +141,11 @@ describe('createHandleDragEnd', () => {
     const handleDragEnd = createHandleDragEnd({
       setItemGroups: jest.fn(),
       setActive,
-      dragStartContainerId: FIRST_CONTAINER_ID,
+
       active,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -167,13 +159,11 @@ describe('createHandleDragEnd', () => {
     const handleDragEnd = createHandleDragEnd({
       setItemGroups: jest.fn(),
       setActive,
-      dragStartContainerId: FIRST_CONTAINER_ID,
+
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragEnd({
@@ -208,13 +198,10 @@ describe('createHandleDragEnd', () => {
     const handleDragEnd = createHandleDragEnd({
       setItemGroups,
       setActive,
-      dragStartContainerId: SECOND_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping: itemGroupsToMapping(testItems)
+      getUniqueId: () => 'New ID'
     })
 
     handleDragEnd({
@@ -265,13 +252,10 @@ describe('createHandleDragEnd', () => {
     const handleDragEnd = createHandleDragEnd({
       setItemGroups,
       setActive,
-      dragStartContainerId: SECOND_CONTAINER_ID,
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping: itemGroupsToMapping(testItems)
+      getUniqueId: () => 'New ID'
     })
 
     handleDragEnd({
@@ -317,10 +301,11 @@ describe('createHandleDragEnd', () => {
       id
     })
 
+    itemsToGroupMapping = itemGroupsToMapping(testItems)
+
     const handleDragEnd = createHandleDragEnd({
       setItemGroups,
       setActive,
-      dragStartContainerId: SECOND_CONTAINER_ID,
       active: {
         ...basicActive,
         data: {
@@ -332,8 +317,7 @@ describe('createHandleDragEnd', () => {
       getItemGroupData,
       defaultBodyCursor,
       getUniqueId: () => uniqueId,
-      setItemsToGroupMapping,
-      itemsToGroupMapping: itemGroupsToMapping(testItems)
+      defaultMaintainOriginalIds: true
     })
 
     handleDragEnd({
@@ -390,10 +374,12 @@ describe('createHandleDragEnd', () => {
     }
     testItems[SECOND_CONTAINER_ID].push()
 
+    itemsToGroupMapping = itemGroupsToMapping(testItems)
+
     const handleDragEnd = createHandleDragEnd({
       setItemGroups,
       setActive,
-      dragStartContainerId: FIRST_CONTAINER_ID,
+
       active: {
         ...basicActive,
         data: {
@@ -405,8 +391,7 @@ describe('createHandleDragEnd', () => {
       getItemGroupData,
       defaultBodyCursor,
       getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping: itemGroupsToMapping(testItems)
+      defaultMaintainOriginalIds: true
     })
 
     handleDragEnd({

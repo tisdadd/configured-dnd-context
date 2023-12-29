@@ -5,9 +5,12 @@ import { Active } from '@dnd-kit/core'
 import ContainerItem from './ContainerItem.type'
 
 type copyFixInput = {
-  setItemGroups: Dispatch<SetStateAction<ItemGroups>>
-  setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
-  itemsToGroupMapping: ItemToGroupAndIndex
+  setItemGroups: Dispatch<
+    SetStateAction<{
+      itemGroups: ItemGroups
+      itemsToGroupMapping: ItemToGroupAndIndex
+    }>
+  >
   active: Active
   removedItem?: ContainerItem
   maintainOriginalIds?: boolean
@@ -15,14 +18,13 @@ type copyFixInput = {
 
 const copyFix = ({
   setItemGroups,
-  itemsToGroupMapping,
-  setItemsToGroupMapping,
   active,
   removedItem,
   maintainOriginalIds = false
 }: copyFixInput) => {
-  setItemGroups(itemGroups => {
+  setItemGroups(({ itemGroups, itemsToGroupMapping }) => {
     let newItems = { ...itemGroups }
+    let newGroupMappings: ItemToGroupAndIndex = {}
 
     const [[endContainerId, endIndex]] = Object.entries(
       itemsToGroupMapping[active.id] || {}
@@ -31,7 +33,6 @@ const copyFix = ({
 
     if (endItem && endItem.copiedFromContainer && endItem.copiedFromId) {
       // end item was copied
-      let newGroupMappings: ItemToGroupAndIndex = {}
       const {
         copiedFromId,
         copiedToContainer,
@@ -64,12 +65,14 @@ const copyFix = ({
         }
         newGroupMappings[id] = { [startContainerId]: startIndex }
       }
-      setItemsToGroupMapping(priorGroupMapping => ({
-        ...priorGroupMapping,
-        ...newGroupMappings
-      }))
     }
-    return newItems
+    return {
+      itemGroups: newItems,
+      itemsToGroupMapping: {
+        ...itemsToGroupMapping,
+        ...newGroupMappings
+      }
+    }
   })
 }
 export default copyFix

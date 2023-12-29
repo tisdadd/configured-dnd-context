@@ -10,14 +10,17 @@ import ItemToGroupAndIndex from '../ItemToGroupAndIndex.type'
 import copyFix from '../copyFix'
 
 type createHandleDragEndInput = {
-  setItemGroups: Dispatch<SetStateAction<ItemGroups>>
+  setItemGroups: Dispatch<
+    SetStateAction<{
+      itemGroups: ItemGroups
+      itemsToGroupMapping: ItemToGroupAndIndex
+    }>
+  >
   setActive: Dispatch<SetStateAction<Active | null>>
   active: Active | null
   getItemGroupData: (id: UniqueIdentifier) => any
   defaultBodyCursor: string
   getUniqueId: () => UniqueIdentifier
-  setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
-  itemsToGroupMapping: ItemToGroupAndIndex
   defaultMaintainOriginalIds?: boolean
 }
 
@@ -28,8 +31,6 @@ const createHandleDragEnd = ({
   getItemGroupData,
   defaultBodyCursor,
   getUniqueId,
-  setItemsToGroupMapping,
-  itemsToGroupMapping,
   defaultMaintainOriginalIds = false
 }: createHandleDragEndInput) => {
   const handleDragEnd = (dragEndEvent: DragEndEvent) => {
@@ -39,8 +40,6 @@ const createHandleDragEnd = ({
     if (originalActive?.data?.current?.dndCopy) {
       copyFix({
         setItemGroups,
-        itemsToGroupMapping,
-        setItemsToGroupMapping,
         active,
         maintainOriginalIds:
           originalActive?.data?.current?.dndMaintainOriginalId === true ||
@@ -86,11 +85,12 @@ const createHandleDragEnd = ({
           })))
     ) {
       // for sortable drop zones, we want to do standard sorting swaps
-      setItemGroups(itemGroups => {
+      setItemGroups(({ itemGroups, itemsToGroupMapping }) => {
         let newItems = { ...itemGroups }
+        let newItemsToGroupAndIndex: ItemToGroupAndIndex = {}
 
         if (!itemGroups[overContainer]) {
-          return newItems
+          return { itemGroups, itemsToGroupMapping }
         }
 
         const activeIndex = active.data.current?.sortable.index
@@ -109,18 +109,12 @@ const createHandleDragEnd = ({
             )
           }
           // going to reset the mappings for group starting at lower of the two indices
-          let newItemsToGroupAndIndex: ItemToGroupAndIndex = {}
           let startIndex = activeIndex > overIndex ? overIndex : activeIndex
           for (let i = startIndex; i < newItems[overContainer].length; i++) {
             newItemsToGroupAndIndex[newItems[overContainer][i].id] = {
               [overContainer]: i
             }
           }
-
-          setItemsToGroupMapping(priorItemsToGroupMapping => ({
-            ...priorItemsToGroupMapping,
-            ...newItemsToGroupAndIndex
-          }))
         } else {
           if (originalActive?.data?.current?.dndCopy) {
             const baseCopy = copyBetweenContainers({
@@ -134,10 +128,7 @@ const createHandleDragEnd = ({
               idStays: true
             })
             newItems = baseCopy.newItemGroups
-            setItemsToGroupMapping(priorItemsToGroupMapping => ({
-              ...priorItemsToGroupMapping,
-              ...baseCopy.newItemsToGroupAndIndex
-            }))
+            newItemsToGroupAndIndex = baseCopy.newItemsToGroupAndIndex
           } else {
             let movedItems = moveBetweenContainers({
               items: itemGroups,
@@ -148,14 +139,17 @@ const createHandleDragEnd = ({
               active
             })
             newItems = movedItems.newItemGroups
-            setItemsToGroupMapping(priorItemsToGroupMapping => ({
-              ...priorItemsToGroupMapping,
-              ...movedItems.newItemsToGroupAndIndex
-            }))
+            newItemsToGroupAndIndex = movedItems.newItemsToGroupAndIndex
           }
         }
 
-        return newItems
+        return {
+          itemGroups: newItems,
+          itemsToGroupMapping: {
+            ...itemsToGroupMapping,
+            ...newItemsToGroupAndIndex
+          }
+        }
       })
     }
 

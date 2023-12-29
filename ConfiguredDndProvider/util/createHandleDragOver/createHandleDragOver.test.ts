@@ -31,10 +31,14 @@ const basicActive: Active = {
 } as unknown as Active
 
 describe('createHandleDragOver', () => {
-  let setItemGroups: Dispatch<SetStateAction<ItemGroups>>
+  let setItemGroups: Dispatch<
+    SetStateAction<{
+      itemGroups: ItemGroups
+      itemsToGroupMapping: ItemToGroupAndIndex
+    }>
+  >
   let setActive: Dispatch<SetStateAction<Active | null>>
   let getItemGroupData: getItemGroupDataSignature
-  let setItemsToGroupMapping: Dispatch<SetStateAction<ItemToGroupAndIndex>>
   let setLastOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
 
   let itemsToGroupMapping: ItemToGroupAndIndex
@@ -45,23 +49,25 @@ describe('createHandleDragOver', () => {
   beforeEach(() => {
     testItems = getBaseItems()
     itemsToGroupMapping = itemGroupsToMapping(testItems)
-    setItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testItems = setItemGroupsFunction(testItems)
-        }
-      }
-    )
+    setItemGroups = jest.fn<
+      Dispatch<
+        SetStateAction<{
+          itemGroups: ItemGroups
+          itemsToGroupMapping: ItemToGroupAndIndex
+        }>
+      >
+    >(setItemGroupsFunction => {
+      if (typeof setItemGroupsFunction === 'function') {
+        testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
+        const { itemGroups: testItemGroups, itemsToGroupMapping: testMapping } =
+          testSetItemGroupsSpy({ itemGroups: testItems, itemsToGroupMapping })
 
-    setActive = jest.fn()
-    setItemsToGroupMapping = jest.fn<
-      Dispatch<SetStateAction<ItemToGroupAndIndex>>
-    >(setItemsToGroupMappingFunction => {
-      if (typeof setItemsToGroupMappingFunction === 'function') {
-        itemsToGroupMapping =
-          setItemsToGroupMappingFunction(itemsToGroupMapping)
+        itemsToGroupMapping = testMapping
+        testItems = testItemGroups
       }
     })
+
+    setActive = jest.fn()
     getItemGroupData = jest.fn<getItemGroupDataSignature>()
     setLastOverContainerId = jest.fn()
   })
@@ -77,9 +83,7 @@ describe('createHandleDragOver', () => {
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: basicActive,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragOver({
@@ -144,8 +148,6 @@ describe('createHandleDragOver', () => {
         }
       },
       getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping,
       setItemGroups
     })
 
@@ -180,9 +182,7 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragOver({
@@ -280,9 +280,7 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragOver({
@@ -339,9 +337,7 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragOver({
@@ -373,9 +369,7 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragOver({
@@ -408,26 +402,15 @@ describe('createHandleDragOver', () => {
 
   it('Over a container and not set to copy, will simply move there', () => {
     const id = 'CopiedId'
-    let testSetItemGroupsSpy
-    let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
-          testItems = testSetItemGroupsSpy(testItems)
-        }
-      }
-    )
 
     const handleDragOver = createHandleDragOver({
-      setItemGroups: testSetItemGroups,
+      setItemGroups,
       lastOverContainerId: SECOND_CONTAINER_ID,
       setLastOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: basicActive,
-      getUniqueId: () => 'New ID',
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => 'New ID'
     })
 
     handleDragOver({
@@ -461,23 +444,14 @@ describe('createHandleDragOver', () => {
     )
     expectedItems[FIRST_CONTAINER_ID].splice(0, 1)
 
-    expect(testSetItemGroupsSpy).lastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
   })
 
   it('Over a container and set to copy, will copy there updating data', () => {
     const id = 'CopiedId'
-    let testSetItemGroupsSpy
-    let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
-          testItems = testSetItemGroupsSpy(testItems)
-        }
-      }
-    )
 
     const handleDragOver = createHandleDragOver({
-      setItemGroups: testSetItemGroups,
+      setItemGroups,
       lastOverContainerId: SECOND_CONTAINER_ID,
       setLastOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
@@ -490,9 +464,7 @@ describe('createHandleDragOver', () => {
           }
         }
       },
-      getUniqueId: () => id,
-      setItemsToGroupMapping,
-      itemsToGroupMapping
+      getUniqueId: () => id
     })
 
     handleDragOver({
@@ -533,7 +505,7 @@ describe('createHandleDragOver', () => {
       id
     }
 
-    expect(testSetItemGroupsSpy).lastReturnedWith(expectedItems)
+    expect(testItems).toStrictEqual(expectedItems)
   })
 
   it('If copying, and straight from another container, will clean up', () => {
@@ -557,17 +529,7 @@ describe('createHandleDragOver', () => {
       return items
     }
 
-    let testItems = getTestItemsBase()
-
-    let testSetItemGroupsSpy
-    let testSetItemGroups = jest.fn<Dispatch<SetStateAction<ItemGroups>>>(
-      setItemGroupsFunction => {
-        if (typeof setItemGroupsFunction === 'function') {
-          testSetItemGroupsSpy = jest.fn(setItemGroupsFunction)
-          testItems = testSetItemGroupsSpy(testItems)
-        }
-      }
-    )
+    testItems = getTestItemsBase()
 
     let testSetLastOverContainerIdSpy
     let lastOverContainerId: UniqueIdentifier | null = FIRST_CONTAINER_ID
@@ -583,7 +545,7 @@ describe('createHandleDragOver', () => {
 
     const resetHandleDragOver = () => {
       return createHandleDragOver({
-        setItemGroups: testSetItemGroups,
+        setItemGroups,
         lastOverContainerId,
         setLastOverContainerId: testSetLastOverContainerId,
         dragStartContainerId: FIRST_CONTAINER_ID,
@@ -596,9 +558,7 @@ describe('createHandleDragOver', () => {
             }
           }
         },
-        getUniqueId: () => `${id}${++idCounter}`,
-        setItemsToGroupMapping,
-        itemsToGroupMapping
+        getUniqueId: () => `${id}${++idCounter}`
       })
     }
 
