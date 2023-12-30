@@ -93,22 +93,51 @@ export const MoveBetweenMultipleSortableCollections = () => {
   )
 }
 
-export const CopyBetweenMultipleSortableCollections = () => {
+export const CopyBetweenMultipleSortableCollections = ({
+  extraElementsPerContainer = 0
+}) => {
   return (
     <ConfiguredDndProvider>
       <ConfiguredDndContext.Consumer>
         {value => {
           return (
             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-              <SortableCollection value={value} prefix='1-' dndCopy={true} />
-              <SortableCollection value={value} prefix='2-' dndCopy={true} />
-              <SortableCollection value={value} prefix='3-' dndCopy={true} />
+              <SortableCollection
+                value={value}
+                prefix='1-'
+                dndCopy={true}
+                numberOfElements={extraElementsPerContainer}
+              />
+              <SortableCollection
+                value={value}
+                prefix='2-'
+                dndCopy={true}
+                numberOfElements={extraElementsPerContainer}
+              />
+              <SortableCollection
+                value={value}
+                prefix='3-'
+                dndCopy={true}
+                numberOfElements={extraElementsPerContainer}
+              />
             </div>
           )
         }}
       </ConfiguredDndContext.Consumer>
     </ConfiguredDndProvider>
   )
+}
+
+CopyBetweenMultipleSortableCollections.args = {
+  extraElementsPerContainer: 0
+}
+
+CopyBetweenMultipleSortableCollections.argTypes = {
+  extraElementsPerContainer: {
+    control: {
+      type: 'number'
+    }
+  }
 }
 
 export const FirstContainerCopiesFromOthersMoveOnly = () => {

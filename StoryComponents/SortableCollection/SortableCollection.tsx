@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  ReactElement,
-  ReactComponentElement,
-  ComponentType
-} from 'react'
+import React, { useState, useEffect, ComponentType, useMemo } from 'react'
 
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
@@ -20,6 +14,7 @@ type SortableCollectionProps = {
   data?: any
   itemDataFunction?: () => any
   Component?: ComponentType<P>
+  numberOfElements?: number
 }
 
 const SortableCollection = <P extends object>({
@@ -32,25 +27,33 @@ const SortableCollection = <P extends object>({
   itemDataFunction = () => {
     return {}
   },
-  Component = DragSquare
+  Component = DragSquare,
+  numberOfElements
 }: SortableCollectionProps) => {
   const { registerItemGroup, getItemGroup, getUniqueId } = value
   const [id] = useState('list-' + getUniqueId())
   const { setNodeRef } = useDroppable({ id })
   useEffect(() => {
     if (id) {
+      let items = [prefix + 'A', prefix + 'B', prefix + 'C', prefix + 'D']
+      if (numberOfElements) {
+        items = [...items, ...Array(numberOfElements)]
+        for (let i = 4; i < items.length; i++) {
+          items[i] = prefix + i
+        }
+      }
       registerItemGroup({
         id,
-        items: [prefix + 'A', prefix + 'B', prefix + 'C', prefix + 'D'],
+        items,
         data
       })
     }
-  }, [id])
+  }, [id, numberOfElements])
 
   const items = getItemGroup(id)
 
-  let innards =
-    items.length > 0
+  const innards = useMemo(() => {
+    return items.length > 0
       ? items.map(({ id: squareId, item, copiedFromId }) => (
           <Component
             key={squareId}
@@ -67,13 +70,14 @@ const SortableCollection = <P extends object>({
           />
         ))
       : 'No Items'
+  }, [items, value?.active?.id])
+
+  const itemIds = useMemo(() => {
+    return items.map(({ id }) => id)
+  }, [items])
 
   return (
-    <SortableContext
-      id={id}
-      items={items.map(({ id }) => id)}
-      strategy={rectSortingStrategy}
-    >
+    <SortableContext id={id} items={itemIds} strategy={rectSortingStrategy}>
       <div
         ref={setNodeRef}
         style={{
