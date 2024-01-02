@@ -11,6 +11,7 @@ type StateType = {
   itemGroupsData: {
     [key: string]: any
   }
+  overContainerId: UniqueIdentifier | null
 }
 
 const defaultState: StateType = {
@@ -19,7 +20,8 @@ const defaultState: StateType = {
     itemGroups: { [NON_GROUPED_ITEMS_GROUP_NAME]: [] },
     itemsToGroupMapping: {}
   },
-  itemGroupsData: {}
+  itemGroupsData: {},
+  overContainerId: null
 }
 
 export default defaultState

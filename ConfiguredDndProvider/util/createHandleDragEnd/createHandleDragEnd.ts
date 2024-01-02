@@ -22,6 +22,7 @@ type createHandleDragEndInput = {
   defaultBodyCursor: string
   getUniqueId: () => UniqueIdentifier
   defaultMaintainOriginalIds?: boolean
+  setOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
 }
 
 const createHandleDragEnd = ({
@@ -31,7 +32,8 @@ const createHandleDragEnd = ({
   getItemGroupData,
   defaultBodyCursor,
   getUniqueId,
-  defaultMaintainOriginalIds = false
+  defaultMaintainOriginalIds = false,
+  setOverContainerId
 }: createHandleDragEndInput) => {
   const handleDragEnd = (dragEndEvent: DragEndEvent) => {
     setActive(null)
@@ -59,6 +61,9 @@ const createHandleDragEnd = ({
     if (document) {
       document.body.style.cursor = defaultBodyCursor
     }
+
+    // set to null at drag end
+    setOverContainerId(null)
 
     if (!over) {
       return

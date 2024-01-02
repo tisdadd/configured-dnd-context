@@ -115,6 +115,9 @@ type getItem: (id: UniqueIdentifier) => ContainerItem
 
 /** Are you in the default provider (if so, that would mean also in the overlay) */
 inDefaultProvider: boolean
+
+/** What container id is an active currently over */
+overContainerId: null | UniqueIdentifier
 ```
 
 #### useConfiguredDnd Hook

@@ -52,8 +52,8 @@ function ConfiguredDndProvider (props: propTypes) {
     document ? document.body.style.cursor : 'default'
   )
 
-  const [lastOverContainerId, setLastOverContainerId] =
-    useState<UniqueIdentifier | null>(null)
+  const [overContainerId, setOverContainerId] =
+    useState<UniqueIdentifier | null>(defaultState.overContainerId)
 
   // groups of items with ids
   const [itemGroups, setItemGroups] = useState<{
@@ -294,18 +294,17 @@ function ConfiguredDndProvider (props: propTypes) {
     () =>
       createHandleDragOver({
         setItemGroups,
-        lastOverContainerId,
-        setLastOverContainerId,
+        overContainerId,
+        setOverContainerId,
         dragStartContainerId,
         getItemGroupData,
         active,
-        getUniqueId,
-        defaultMaintainOriginalIds: maintainOriginalIds
+        getUniqueId
       }),
     [
       setItemGroups,
-      lastOverContainerId,
-      setLastOverContainerId,
+      overContainerId,
+      setOverContainerId,
       dragStartContainerId,
       getItemGroupData,
       active,
@@ -323,7 +322,8 @@ function ConfiguredDndProvider (props: propTypes) {
         getItemGroupData,
         defaultBodyCursor,
         getUniqueId,
-        defaultMaintainOriginalIds: maintainOriginalIds
+        defaultMaintainOriginalIds: maintainOriginalIds,
+        setOverContainerId
       }),
     [
       setItemGroups,
@@ -333,7 +333,8 @@ function ConfiguredDndProvider (props: propTypes) {
       getItemGroupData,
       defaultBodyCursor,
       getUniqueId,
-      maintainOriginalIds
+      maintainOriginalIds,
+      setOverContainerId
     ]
   )
 
@@ -348,7 +349,8 @@ function ConfiguredDndProvider (props: propTypes) {
     active,
     updateItem,
     getItem,
-    inDefaultProvider: false
+    inDefaultProvider: false,
+    overContainerId
   }
 
   return (

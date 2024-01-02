@@ -1,6 +1,6 @@
 {
   "name": "configured-dnd-context",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A context with a provider, hook, and Higher Order Component meant to make it simpler to work with dnd-kit",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

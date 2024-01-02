@@ -39,7 +39,7 @@ describe('createHandleDragOver', () => {
   >
   let setActive: Dispatch<SetStateAction<Active | null>>
   let getItemGroupData: getItemGroupDataSignature
-  let setLastOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
+  let setOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
 
   let itemsToGroupMapping: ItemToGroupAndIndex
   let testItems
@@ -69,7 +69,7 @@ describe('createHandleDragOver', () => {
 
     setActive = jest.fn()
     getItemGroupData = jest.fn<getItemGroupDataSignature>()
-    setLastOverContainerId = jest.fn()
+    setOverContainerId = jest.fn()
   })
 
   it("Calls the passed in active and over's data.current.onDragOver if it exists", () => {
@@ -78,8 +78,8 @@ describe('createHandleDragOver', () => {
 
     const handleDragOver = createHandleDragOver({
       setItemGroups,
-      lastOverContainerId: FIRST_CONTAINER_ID,
-      setLastOverContainerId,
+      overContainerId: FIRST_CONTAINER_ID,
+      setOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: basicActive,
@@ -122,21 +122,21 @@ describe('createHandleDragOver', () => {
     }
     testItems[SECOND_CONTAINER_ID].push()
 
-    let testSetLastOverContainerIdSpy
-    let lastOverContainerId: UniqueIdentifier | null = SECOND_CONTAINER_ID
-    let testSetLastOverContainerId = jest.fn<
+    let testSetOverContainerIdSpy
+    let overContainerId: UniqueIdentifier | null = SECOND_CONTAINER_ID
+    let testSetOverContainerId = jest.fn<
       Dispatch<SetStateAction<UniqueIdentifier | null>>
-    >(setLastOverContainerIdFunction => {
-      if (typeof setLastOverContainerIdFunction === 'function') {
-        testSetLastOverContainerIdSpy = jest.fn(setLastOverContainerIdFunction)
+    >(setOverContainerIdFunction => {
+      if (typeof setOverContainerIdFunction === 'function') {
+        testSetOverContainerIdSpy = jest.fn(setOverContainerIdFunction)
 
-        lastOverContainerId = testSetLastOverContainerIdSpy(lastOverContainerId)
+        overContainerId = testSetOverContainerIdSpy(overContainerId)
       }
     })
 
     const handleDragOver = createHandleDragOver({
-      lastOverContainerId: SECOND_CONTAINER_ID,
-      setLastOverContainerId: testSetLastOverContainerId,
+      overContainerId: SECOND_CONTAINER_ID,
+      setOverContainerId: testSetOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: {
@@ -170,8 +170,8 @@ describe('createHandleDragOver', () => {
   it('Will not call setItemGroups if conditions are not met', () => {
     let handleDragOver = createHandleDragOver({
       setItemGroups,
-      lastOverContainerId: SECOND_CONTAINER_ID,
-      setLastOverContainerId,
+      overContainerId: SECOND_CONTAINER_ID,
+      setOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: {
@@ -266,8 +266,8 @@ describe('createHandleDragOver', () => {
 
     handleDragOver = createHandleDragOver({
       setItemGroups,
-      lastOverContainerId: SECOND_CONTAINER_ID,
-      setLastOverContainerId,
+      overContainerId: SECOND_CONTAINER_ID,
+      setOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: {
@@ -311,22 +311,22 @@ describe('createHandleDragOver', () => {
   })
 
   it('Will set the last active container id', () => {
-    let testSetLastOverContainerIdSpy
-    let lastOverContainerId: UniqueIdentifier | null = FIRST_CONTAINER_ID
-    let testSetLastOverContainerId = jest.fn<
+    let testSetOverContainerIdSpy
+    let overContainerId: UniqueIdentifier | null = FIRST_CONTAINER_ID
+    let testSetOverContainerId = jest.fn<
       Dispatch<SetStateAction<UniqueIdentifier | null>>
-    >(setLastOverContainerIdFunction => {
-      if (typeof setLastOverContainerIdFunction === 'function') {
-        testSetLastOverContainerIdSpy = jest.fn(setLastOverContainerIdFunction)
+    >(setOverContainerIdFunction => {
+      if (typeof setOverContainerIdFunction === 'function') {
+        testSetOverContainerIdSpy = jest.fn(setOverContainerIdFunction)
 
-        lastOverContainerId = testSetLastOverContainerIdSpy(lastOverContainerId)
+        overContainerId = testSetOverContainerIdSpy(overContainerId)
       }
     })
 
     let handleDragOver = createHandleDragOver({
       setItemGroups,
-      lastOverContainerId: SECOND_CONTAINER_ID,
-      setLastOverContainerId: testSetLastOverContainerId,
+      overContainerId: SECOND_CONTAINER_ID,
+      setOverContainerId: testSetOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: {
@@ -353,12 +353,12 @@ describe('createHandleDragOver', () => {
       }
     } as unknown as DragOverEvent)
 
-    expect(testSetLastOverContainerIdSpy).lastReturnedWith(null)
+    expect(testSetOverContainerIdSpy).lastReturnedWith(null)
 
     handleDragOver = createHandleDragOver({
       setItemGroups,
-      lastOverContainerId: FIRST_CONTAINER_ID,
-      setLastOverContainerId: testSetLastOverContainerId,
+      overContainerId: FIRST_CONTAINER_ID,
+      setOverContainerId: testSetOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: {
@@ -397,7 +397,7 @@ describe('createHandleDragOver', () => {
       }
     } as unknown as DragOverEvent)
 
-    expect(testSetLastOverContainerIdSpy).lastReturnedWith(SECOND_CONTAINER_ID)
+    expect(testSetOverContainerIdSpy).lastReturnedWith(SECOND_CONTAINER_ID)
   })
 
   it('Over a container and not set to copy, will simply move there', () => {
@@ -405,8 +405,8 @@ describe('createHandleDragOver', () => {
 
     const handleDragOver = createHandleDragOver({
       setItemGroups,
-      lastOverContainerId: SECOND_CONTAINER_ID,
-      setLastOverContainerId,
+      overContainerId: SECOND_CONTAINER_ID,
+      setOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: basicActive,
@@ -452,8 +452,8 @@ describe('createHandleDragOver', () => {
 
     const handleDragOver = createHandleDragOver({
       setItemGroups,
-      lastOverContainerId: SECOND_CONTAINER_ID,
-      setLastOverContainerId,
+      overContainerId: SECOND_CONTAINER_ID,
+      setOverContainerId,
       dragStartContainerId: FIRST_CONTAINER_ID,
       getItemGroupData,
       active: {
@@ -531,23 +531,23 @@ describe('createHandleDragOver', () => {
 
     testItems = getTestItemsBase()
 
-    let testSetLastOverContainerIdSpy
-    let lastOverContainerId: UniqueIdentifier | null = FIRST_CONTAINER_ID
-    let testSetLastOverContainerId = jest.fn<
+    let testSetOverContainerIdSpy
+    let overContainerId: UniqueIdentifier | null = FIRST_CONTAINER_ID
+    let testSetOverContainerId = jest.fn<
       Dispatch<SetStateAction<UniqueIdentifier | null>>
-    >(setLastOverContainerIdFunction => {
-      if (typeof setLastOverContainerIdFunction === 'function') {
-        testSetLastOverContainerIdSpy = jest.fn(setLastOverContainerIdFunction)
+    >(setOverContainerIdFunction => {
+      if (typeof setOverContainerIdFunction === 'function') {
+        testSetOverContainerIdSpy = jest.fn(setOverContainerIdFunction)
 
-        lastOverContainerId = testSetLastOverContainerIdSpy(lastOverContainerId)
+        overContainerId = testSetOverContainerIdSpy(overContainerId)
       }
     })
 
     const resetHandleDragOver = () => {
       return createHandleDragOver({
         setItemGroups,
-        lastOverContainerId,
-        setLastOverContainerId: testSetLastOverContainerId,
+        overContainerId,
+        setOverContainerId: testSetOverContainerId,
         dragStartContainerId: FIRST_CONTAINER_ID,
         getItemGroupData,
         active: {

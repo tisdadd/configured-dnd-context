@@ -16,24 +16,22 @@ type createHandleDragOverInput = {
       itemsToGroupMapping: ItemToGroupAndIndex
     }>
   >
-  lastOverContainerId: UniqueIdentifier | null
-  setLastOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
+  overContainerId: UniqueIdentifier | null
+  setOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
   dragStartContainerId: UniqueIdentifier | null
   getItemGroupData: (id: UniqueIdentifier) => any
   active: Active | null
   getUniqueId: () => UniqueIdentifier
-  defaultMaintainOriginalIds?: boolean
 }
 
 const createHandleDragOver = ({
   setItemGroups,
-  lastOverContainerId,
-  setLastOverContainerId,
+  overContainerId,
+  setOverContainerId,
   dragStartContainerId,
   getItemGroupData,
   active: originalActive,
-  getUniqueId,
-  defaultMaintainOriginalIds = false
+  getUniqueId
 }: createHandleDragOverInput) => {
   const handleDragOver = (dragOverEvent: DragOverEvent) => {
     const { active, over } = dragOverEvent
@@ -49,8 +47,8 @@ const createHandleDragOver = ({
     }
 
     if (!overId) {
-      if (lastOverContainerId) {
-        setLastOverContainerId(containerId => {
+      if (overContainerId) {
+        setOverContainerId(containerId => {
           // last known container id
           if (
             containerId &&
@@ -164,13 +162,13 @@ const createHandleDragOver = ({
 
             // if moved directly (using keyboard), may need to do slightly more
             if (
-              lastOverContainerId &&
-              overContainer !== lastOverContainerId &&
-              lastOverContainerId !== dragStartContainerId
+              overContainerId &&
+              overContainer !== overContainerId &&
+              overContainerId !== dragStartContainerId
             ) {
               const baseRemoval = removeFromContainer(
                 newItems,
-                lastOverContainerId,
+                overContainerId,
                 activeIndex
               )
               newItems = baseRemoval.newItemGroups
@@ -252,8 +250,8 @@ const createHandleDragOver = ({
         })
       }
     }
-    if (lastOverContainerId !== overContainer) {
-      setLastOverContainerId(containerId => {
+    if (overContainerId !== overContainer) {
+      setOverContainerId(containerId => {
         // last known container id
         return overContainer
       })

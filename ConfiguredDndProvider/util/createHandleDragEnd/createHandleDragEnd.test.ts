@@ -40,11 +40,13 @@ describe('createHandleDragEnd', () => {
     }>
   >
   let setActive: Dispatch<SetStateAction<Active | null>>
+  let setOverContainerId: Dispatch<SetStateAction<UniqueIdentifier | null>>
   let getItemGroupData: getItemGroupDataSignature
   let testItems
   let itemsToGroupMapping
 
   beforeEach(() => {
+    setOverContainerId = jest.fn()
     testItems = getBaseItems()
     itemsToGroupMapping = itemGroupsToMapping(testItems)
     setItemGroups = jest.fn<
@@ -75,7 +77,8 @@ describe('createHandleDragEnd', () => {
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setOverContainerId
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -91,7 +94,8 @@ describe('createHandleDragEnd', () => {
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor: cursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setOverContainerId
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -118,7 +122,8 @@ describe('createHandleDragEnd', () => {
       active,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setOverContainerId
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -145,7 +150,8 @@ describe('createHandleDragEnd', () => {
       active,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setOverContainerId
     })
 
     handleDragEnd({} as DragEndEvent)
@@ -163,7 +169,8 @@ describe('createHandleDragEnd', () => {
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setOverContainerId
     })
 
     handleDragEnd({
@@ -201,7 +208,8 @@ describe('createHandleDragEnd', () => {
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setOverContainerId
     })
 
     handleDragEnd({
@@ -255,7 +263,8 @@ describe('createHandleDragEnd', () => {
       active: basicActive,
       getItemGroupData,
       defaultBodyCursor,
-      getUniqueId: () => 'New ID'
+      getUniqueId: () => 'New ID',
+      setOverContainerId
     })
 
     handleDragEnd({
@@ -317,7 +326,8 @@ describe('createHandleDragEnd', () => {
       getItemGroupData,
       defaultBodyCursor,
       getUniqueId: () => uniqueId,
-      defaultMaintainOriginalIds: true
+      defaultMaintainOriginalIds: true,
+      setOverContainerId
     })
 
     handleDragEnd({
@@ -391,7 +401,8 @@ describe('createHandleDragEnd', () => {
       getItemGroupData,
       defaultBodyCursor,
       getUniqueId: () => 'New ID',
-      defaultMaintainOriginalIds: true
+      defaultMaintainOriginalIds: true,
+      setOverContainerId
     })
 
     handleDragEnd({
