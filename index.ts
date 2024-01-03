@@ -1,4 +1,4 @@
-import { DragOverEvent, DragEndEvent } from '@dnd-kit/core'
+import { DragOverEvent, DragEndEvent, DndContext } from '@dnd-kit/core'
 import dndAllowableDropFilterSignature from './ConfiguredDndProvider/util/dndAllowableDropFilterSignature.type'
 
 export { default as ConfiguredDndProvider } from './ConfiguredDndProvider'
@@ -19,7 +19,7 @@ export interface DraggableDataExtras {
   /** If true, this shouldn't be allowed to change what container it is in on drop*/
   dndDisallowContainerChanging?: boolean
   /** What to render to the overlay when this is the active item */
-  renderOverlayItem?: () => React.JSX.Element
+  renderOverlayItem?: (value: typeof DndContext) => React.JSX.Element
   /** Return true if this item is allowed to drop to the given container, false otherwise */
   dndAllowableDropFilter?: dndAllowableDropFilterSignature
   /**

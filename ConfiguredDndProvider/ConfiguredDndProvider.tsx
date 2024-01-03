@@ -369,7 +369,7 @@ function ConfiguredDndProvider (props: propTypes) {
       {createPortal(
         <DragOverlay {...dragOverlayProps}>
           {active?.data?.current?.renderOverlayItem &&
-            active?.data?.current?.renderOverlayItem()}
+            active?.data?.current?.renderOverlayItem({ value })}
         </DragOverlay>,
         document.body
       )}

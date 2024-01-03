@@ -214,7 +214,7 @@ dndMaintainOriginalId?: boolean
 /** If true, this shouldn't be allowed to change what container it is in on drop*/
 dndDisallowContainerChanging?: boolean
 /** What to render to the overlay when this is the active item */
-renderOverlayItem?: ()=>React.JSX.Element
+renderOverlayItem?: (value: typeof DndContext) => React.JSX.Element
 /** Return true if this item is allowed to drop to the given container, false otherwise */
 dndAllowableDropFilter?: ({containerId, containerData}: {containerId: UniqueIdentifier, containerData: any})=>boolean
 /** What to do when this item moves over another - it is a hook into the DndContext onDragOver with this item
