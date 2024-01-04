@@ -293,6 +293,11 @@ type WithMakeDraggableAttachedPropTypes = {
      * Is this object in the overlay?
      */
     inOverlay?: boolean
+    /** 
+     * A context value - for use in rendering mainly in the items if using this in combination with the useConfiguredDndHook 
+     * useConfiguredDnd({inOverlay, value})
+     * */
+    value: typeof ConfiguredDndContextDefaultValue
   } & (ReturnType<typeof useDraggable> | ReturnType<typeof useSortable>)
 }
 
@@ -321,6 +326,19 @@ type DndDroppableType = {
    * What data does this droppable have to keep track of
    */
   data?: object
+    /**
+   * On the chance that this is not an independent drop zone,
+   * but meant to act as an item group container
+   */
+  groupRoot?: boolean
+  /**
+   * If this is an item group container, allow registering item at first render
+   */
+  items?: any
+  /**
+   * Are the items already container items ({item, id})
+   */
+  itemsAreContainerItems?: boolean
 }
 
 type WithMakeDroppableAttachedPropTypes = {

@@ -5,6 +5,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 import useConfiguredDnd from '../useConfiguredDnd'
+import ConfiguredDndContext from '../ConfiguredDndContext'
 
 const emptyDataFunction = () => ({})
 
@@ -92,15 +93,21 @@ const withMakeDraggable = <P extends object>(
 
     let transform, transition
 
-    const renderOverlayItem = () => {
+    const renderOverlayItem = ({
+      value
+    }: {
+      value: typeof ConfiguredDndContext
+    }) => {
       return (
         <WrappedComponent
           dndExtras={{
+            id,
             inOverlay: true,
             style: {
               cursor: draggingCursor
             },
-            data: finalData
+            data: finalData,
+            value
           }}
           {...rest}
         />

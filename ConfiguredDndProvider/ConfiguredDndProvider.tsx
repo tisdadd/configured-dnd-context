@@ -94,7 +94,8 @@ function ConfiguredDndProvider (props: propTypes) {
       id,
       items,
       itemPrefix = 'item',
-      data
+      data,
+      itemsAreContainerItems = false
     }: RegisterItemGroupTypeFunctionParameters) => {
       setItemGroups(({ itemGroups, itemsToGroupMapping }) => {
         let newKeys: ItemToGroupAndIndex = {}
@@ -102,9 +103,14 @@ function ConfiguredDndProvider (props: propTypes) {
         const newItemGroups = {
           ...itemGroups,
           [id]: items.map((item, index) => {
-            const itemId = itemPrefix + getUniqueId()
+            const itemId = itemsAreContainerItems
+              ? item.id
+              : itemPrefix + getUniqueId()
             newKeys[itemId] = { [id]: index }
-            return { id: itemId, item }
+            return {
+              id: itemId,
+              item: itemsAreContainerItems ? item.item : item
+            }
           })
         }
 

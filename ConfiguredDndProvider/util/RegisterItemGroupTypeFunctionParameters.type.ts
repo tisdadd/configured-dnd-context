@@ -18,6 +18,10 @@ type RegisterItemGroupTypeFunctionParameters = {
    * Data specific to this item group
    */
   data?: any
+  /**
+   * Items are already in container item format ({id, item})
+   */
+  itemsAreContainerItems?: boolean
 }
 
 export default RegisterItemGroupTypeFunctionParameters

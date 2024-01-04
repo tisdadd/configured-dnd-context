@@ -1,6 +1,8 @@
 import { UniqueIdentifier, useDraggable } from '@dnd-kit/core'
 import { useSortable } from '@dnd-kit/sortable'
 
+import ConfiguredDndContextDefaultValue from '../ConfiguredDndContext.defaultValue'
+
 type WithMakeDraggableAttachedPropTypes = {
   dndExtras: {
     /** Extra Style To Attach to an Element */
@@ -17,6 +19,8 @@ type WithMakeDraggableAttachedPropTypes = {
      * Is this object in the overlay?
      */
     inOverlay?: boolean
+    /** A context value - for use in rendering mainly */
+    value: typeof ConfiguredDndContextDefaultValue
   } & (ReturnType<typeof useDraggable> | ReturnType<typeof useSortable>)
 }
 

@@ -17,6 +17,19 @@ type DndDroppableType = {
    * What data does this droppable have to keep track of
    */
   data?: object
+  /**
+   * On the chance that this is not an independent drop zone,
+   * but meant to act as an item group container
+   */
+  groupRoot?: boolean
+  /**
+   * If this is an item group container, allow registering item at first render
+   */
+  items?: any
+  /**
+   * Are the items already container items ({item, id})
+   */
+  itemsAreContainerItems?: boolean
 }
 
 const withMakeDroppable = <P extends object>(
@@ -28,25 +41,46 @@ const withMakeDroppable = <P extends object>(
     const {
       id: propId,
       disabled = false,
-      data = {}
+      data = {},
+      groupRoot = false,
+      items = [],
+      itemsAreContainerItems
     }: DndDroppableType = dndDroppable || {}
 
     const {
       id: generatedId,
       registerNonGroupedItem,
-      getNonGroupedItem
+      getNonGroupedItem,
+      getItemGroup,
+      registerItemGroup,
+      getItemGroupData
     } = useConfiguredDnd()
 
     let id = propId || generatedId
 
-    const item = getNonGroupedItem(id)
+    let item = getNonGroupedItem(id)
+    let found = !!item
+
+    if (groupRoot) {
+      found = !!getItemGroup(id)
+      item = getItemGroupData(id)
+    } else {
+      item = item?.item
+    }
+
     useEffect(() => {
-      if (!item) {
-        registerNonGroupedItem(id, data)
+      console.log('somewhere')
+      if (!found) {
+        groupRoot
+          ? registerItemGroup({ id, items, data, itemsAreContainerItems })
+          : registerNonGroupedItem(id, data)
       }
     }, [id, registerNonGroupedItem, data])
 
-    const finalData = { ...(item?.item || {}), ...data }
+    const finalData = {
+      ...(groupRoot ? getItemGroupData(id) || {} : item?.item || {}),
+      ...data
+    }
 
     let hookBase = useDroppable({
       id,
