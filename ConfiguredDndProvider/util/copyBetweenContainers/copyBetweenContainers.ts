@@ -68,7 +68,8 @@ const copyBetweenContainers = ({
 
   let newItemsToGroupAndIndex: ItemToGroupAndIndex = {}
   // replace items after this one in overContainer
-  for (let i = overIndex; i < newItemGroups[overContainer].length; i++) {
+  let startIndex = overIndex < 0 ? 0 : overIndex
+  for (let i = startIndex; i < newItemGroups[overContainer].length; i++) {
     newItemsToGroupAndIndex[newItemGroups[overContainer][i].id] = {
       [overContainer]: i
     }
