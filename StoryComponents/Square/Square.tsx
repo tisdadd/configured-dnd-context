@@ -26,6 +26,7 @@ const Square = ({
       textAlign: 'center',
       paddingTop: '4ch',
       cursor: 'grab',
+      touchAction: 'none',
       ...style
     }}
     ref={setNodeRef}
