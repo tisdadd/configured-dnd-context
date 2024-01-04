@@ -69,7 +69,6 @@ const withMakeDroppable = <P extends object>(
     }
 
     useEffect(() => {
-      console.log('somewhere')
       if (!found) {
         groupRoot
           ? registerItemGroup({ id, items, data, itemsAreContainerItems })
