@@ -6,6 +6,7 @@ export { default as withConfiguredDnd } from './withConfiguredDnd'
 export { default as useConfiguredDnd } from './useConfiguredDnd'
 export { default as withMakeDraggable } from './withMakeDraggable'
 export { default as withMakeDroppable } from './withMakeDroppable'
+export { default as disableSortingStrategy } from './disableSortingStrategy'
 
 export type { default as dndAllowableDropFilterSignature } from './ConfiguredDndProvider/util/dndAllowableDropFilterSignature.type'
 export type { default as ContainerItem } from './ConfiguredDndProvider/util/ContainerItem.type'

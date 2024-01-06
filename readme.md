@@ -362,6 +362,30 @@ const MyComponent = withMakeDroppable(BaseComponent)
 <MyComponent dndDroppable={optionalInputHere} />
 ```
 
+#### `disableSortingStrategy` Convenience for variable sized items in sortable object
+
+Used in conjunction with item data `dndSwapPositionsWhileMoving: true` on a `SortableContext` item to not use performant animations, but instead costly complete renders by moving items in the containers on the fly. [See this post for more on why you might do this](https://github.com/clauderic/dnd-kit/issues/44#issuecomment-757312037) for multi-sized items in a the same container. Also, [example in storybook](https://tisdadd.github.io/configured-dnd-context/?path=/story/useconfigureddnd--different-sized-elements).
+
+```tsx
+// some sortable list
+<SortableContext
+        id={`${id}`}
+        items={itemIds}
+        strategy={disableSortingStrategy}
+      >
+  ...
+</SortableContext>
+// some sortable item used in that context
+const hookData = useSortable({
+  id,
+  data: {
+    dndSwapPositionsWhileMoving: true
+  }
+})
+```
+
+This may be good for prototyping, but before moving to production consider [creating a sorting strategy](https://docs.dndkit.com/presets/sortable#sorting-strategies).
+
 ### Play with it locally before deciding to install it in a project
 
 You may run this locally with `npm install` and `npm run storybook` to see some example functions.
@@ -964,6 +988,7 @@ export default DraggableField
 - [.nvmrc](https://github.com/nvm-sh/nvm) - Specifies the node version for use with node version manager
 - ConfiguredDndContext.defaultValue.ts - default values for the ConfiguredDnd context
 - ConfiguredDndContext.js - The actual react context
+- disableSortingStrategy.ts - Used in conjunction with item data `dndSwapPositionsWhileMoving: true` on a `SortableContext` item to not use performant animations, but instead costly complete renders by moving items in the containers on the fly. [See this post for more on why you might do this](https://github.com/clauderic/dnd-kit/issues/44#issuecomment-757312037) for multi-sized items in a the same container. Also, [example in storybook](https://tisdadd.github.io/configured-dnd-context/?path=/story/useconfigureddnd--different-sized-elements). 
 - index.ts - For easier import elsewhere
 - [jest.config.js](https://jestjs.io/docs/configuration) - The configuration file for jest. 
 - jest.setup.js - Runs as part of the jest config.

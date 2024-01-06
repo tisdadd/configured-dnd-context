@@ -8,6 +8,7 @@ import ItemGroups from '../ItemGroups.type'
 import replaceAtIndex from '../replaceAtIndex'
 import ItemToGroupAndIndex from '../ItemToGroupAndIndex.type'
 import copyFix from '../copyFix'
+import { arrayMove } from '@dnd-kit/sortable'
 
 type createHandleDragOverInput = {
   setItemGroups: Dispatch<
@@ -112,6 +113,8 @@ const createHandleDragOver = ({
 
     const activeContainer = active.data?.current?.sortable?.containerId
     const overContainer = over.data.current?.sortable?.containerId || over.id
+    const activeIndex = active.data?.current?.sortable?.index
+    const overIndex = over.data.current?.sortable?.index
 
     if (
       // there is an active container
@@ -136,8 +139,6 @@ const createHandleDragOver = ({
           if (!itemGroups[overContainer]) {
             return { itemGroups, itemsToGroupMapping }
           }
-          const activeIndex = active.data?.current?.sortable?.index
-          const overIndex = over.data.current?.sortable?.index
 
           let newGroupMapping: ItemToGroupAndIndex = {
             ...itemsToGroupMapping
@@ -249,6 +250,39 @@ const createHandleDragOver = ({
           }
         })
       }
+    } else if (
+      overContainer &&
+      activeContainer &&
+      originalActive?.data?.current?.dndSwapPositionsWhileMoving &&
+      activeContainer === overContainer
+    ) {
+      setItemGroups(({ itemGroups, itemsToGroupMapping }) => {
+        const newItems: ItemGroups = {
+          ...itemGroups,
+          [overContainer]: arrayMove(
+            itemGroups[overContainer],
+            activeIndex,
+            overIndex
+          )
+        }
+
+        let newItemsToGroupAndIndex: ItemToGroupAndIndex = {}
+
+        let startIndex = activeIndex > overIndex ? overIndex : activeIndex
+        for (let i = startIndex; i < newItems[overContainer].length; i++) {
+          newItemsToGroupAndIndex[newItems[overContainer][i].id] = {
+            [overContainer]: i
+          }
+        }
+
+        return {
+          itemGroups: newItems,
+          itemsToGroupMapping: {
+            ...itemsToGroupMapping,
+            ...newItemsToGroupAndIndex
+          }
+        }
+      })
     }
     if (overContainerId !== overContainer) {
       setOverContainerId(containerId => {

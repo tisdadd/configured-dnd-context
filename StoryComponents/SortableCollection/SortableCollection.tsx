@@ -52,8 +52,8 @@ const SortableCollection = <P extends object>({
 
   const items = getItemGroup(id)
 
-  const innards = useMemo(() => {
-    return items.length > 0
+  const innards =
+    items.length > 0
       ? items.map(({ id: squareId, item, copiedFromId }) => (
           <Component
             key={squareId}
@@ -70,11 +70,8 @@ const SortableCollection = <P extends object>({
           />
         ))
       : 'No Items'
-  }, [items, value?.active?.id])
 
-  const itemIds = useMemo(() => {
-    return items.map(({ id }) => id)
-  }, [items])
+  const itemIds = items.map(({ id }) => id)
 
   return (
     <SortableContext id={id} items={itemIds} strategy={rectSortingStrategy}>

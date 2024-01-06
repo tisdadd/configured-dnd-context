@@ -18,6 +18,7 @@ type DragSquarePropTypes = {
   itemDataFunction?: () => any
   selfContained?: boolean
   style?: object
+  renderExtraStyle?: object
   dndMaintainOriginalId?: boolean
 }
 
@@ -32,7 +33,8 @@ const DragSquare = ({
   copiedFromId,
   itemDataFunction,
   selfContained = false,
-  style: extraStyle
+  style: extraStyle,
+  renderExtraStyle = {}
 }: DragSquarePropTypes) => {
   const { getUniqueId, active, registerNonGroupedItem, getNonGroupedItem } =
     value
@@ -46,7 +48,8 @@ const DragSquare = ({
         style={{
           cursor: 'grabbing',
           borderWidth: '4px',
-          borderColor: '#3f3f3f'
+          borderColor: '#3f3f3f',
+          ...renderExtraStyle
         }}
         extraText={extraText}
       />

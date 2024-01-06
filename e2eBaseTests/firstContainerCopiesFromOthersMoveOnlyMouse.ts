@@ -27,11 +27,25 @@ async function firstContainerCopiesFromOthersMoveOnlyMouse (
   await page.waitForTimeout(201)
   await moveMouseRelativeToBoundingBox(page, squareBBoundingBox1, {
     x: 0,
+    y: (squareABoundingBox1?.height || 0) * -1.5
+  })
+  await page.waitForTimeout(201)
+  await page.mouse.up()
+  await page.waitForTimeout(201)
+
+  // want to be able to move the copied square in same container
+  // move square 1A - copied
+  await square1A.nth(1).hover()
+  await page.mouse.down()
+  await page.waitForTimeout(201)
+  await moveMouseRelativeToBoundingBox(page, squareBBoundingBox1, {
+    x: 0,
     y: (squareABoundingBox1?.height || 0) * 1.5
   })
   await page.waitForTimeout(201)
   await page.mouse.up()
   await page.waitForTimeout(201)
+  await page.waitForTimeout(1001)
 
   // move square 2b
   await square2B.hover()

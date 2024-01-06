@@ -113,6 +113,7 @@ const createHandleDragEnd = ({
               overIndex
             )
           }
+
           // going to reset the mappings for group starting at lower of the two indices
           let startIndex = activeIndex > overIndex ? overIndex : activeIndex
           for (let i = startIndex; i < newItems[overContainer].length; i++) {

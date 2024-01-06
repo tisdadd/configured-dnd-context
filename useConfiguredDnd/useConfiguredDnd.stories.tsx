@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DragEndEvent, DragOverEvent } from '@dnd-kit/core'
+import { SortableContext } from '@dnd-kit/sortable'
+import { Coordinates } from '@dnd-kit/utilities'
 
 import ConfiguredDndProvider from '../ConfiguredDndProvider'
 import useConfiguredDnd from './useConfiguredDnd'
 
-import { Coordinates } from '@dnd-kit/utilities'
 import DragSquare from '../StoryComponents/DragSquare'
 import BasicDroppable from '../StoryComponents/BasicDroppable'
 import SortableCollection from '../StoryComponents/SortableCollection'
 import dndAllowableDropFilterSignature from '../ConfiguredDndProvider/util/dndAllowableDropFilterSignature.type'
+import disableSortingStrategy from '../disableSortingStrategy'
 
 export default {
   component: useConfiguredDnd
@@ -280,6 +282,76 @@ export const SortableContainerWithAddAndRemoveDragAndDrops = () => {
           }
         }}
       />
+    </div>
+  )
+}
+
+export const DifferentSizedElements = () => {
+  const { id, ...value } = useConfiguredDnd()
+  useEffect(() => {
+    if (id) {
+      let items = ['A', 'B', 'C', 'D']
+      value.registerItemGroup({
+        id,
+        items
+      })
+    }
+  }, [id])
+
+  const items = value.getItemGroup(id)
+
+  const itemIds = items.map(({ id }) => id)
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+      <SortableContext
+        id={`${id}`}
+        items={itemIds}
+        strategy={disableSortingStrategy}
+      >
+        <div
+          style={{
+            borderStyle: 'solid',
+            borderWidth: '2px',
+            borderColor: '#00ef00'
+          }}
+        >
+          {items.map(({ item, id: squareId }) => {
+            let style = {
+              height: '10ch'
+            }
+            switch (item) {
+              case 'B':
+                style.height = '15ch'
+                break
+              case 'C':
+                style.height = '20ch'
+                break
+              case 'D':
+                style.height = '25ch'
+                break
+              default: // do nothing
+            }
+
+            return (
+              <DragSquare
+                key={squareId}
+                value={value}
+                style={style}
+                renderExtraStyle={style}
+                extraText={item}
+                sortable={true}
+                id={squareId}
+                itemDataFunction={() => {
+                  return {
+                    dndSwapPositionsWhileMoving: true
+                  }
+                }}
+              />
+            )
+          })}
+        </div>
+      </SortableContext>
     </div>
   )
 }
