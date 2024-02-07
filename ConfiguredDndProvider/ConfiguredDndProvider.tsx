@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 import ConfiguredDndContext from '../ConfiguredDndContext'
@@ -48,9 +48,14 @@ function ConfiguredDndProvider (props: propTypes) {
   const [dragStartContainerId, setDragStartContainerId] =
     useState<UniqueIdentifier | null>(null)
 
-  const [defaultBodyCursor] = useState<string>(
-    document ? document.body.style.cursor : 'default'
-  )
+  const [defaultBodyCursor, setDefaultBodyCursor] = useState<string>('default')
+  const [documentBody, setDocumentBody] = useState<HTMLElement | null>(null)
+
+  // make server side rendering friendly
+  useEffect(() => {
+    setDefaultBodyCursor(document.body.style.cursor)
+    setDocumentBody(document.body)
+  }, [])
 
   const [overContainerId, setOverContainerId] =
     useState<UniqueIdentifier | null>(defaultState.overContainerId)
@@ -372,13 +377,14 @@ function ConfiguredDndProvider (props: propTypes) {
       <ConfiguredDndContext.Provider value={value}>
         {children}
       </ConfiguredDndContext.Provider>
-      {createPortal(
-        <DragOverlay {...dragOverlayProps}>
-          {active?.data?.current?.renderOverlayItem &&
-            active?.data?.current?.renderOverlayItem({ value })}
-        </DragOverlay>,
-        document.body
-      )}
+      {documentBody &&
+        createPortal(
+          <DragOverlay {...dragOverlayProps}>
+            {active?.data?.current?.renderOverlayItem &&
+              active?.data?.current?.renderOverlayItem({ value })}
+          </DragOverlay>,
+          documentBody
+        )}
     </DndContext>
   )
 }
