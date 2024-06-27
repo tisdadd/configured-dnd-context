@@ -58,7 +58,7 @@ const createHandleDragOver = ({
             originalActive?.data?.current?.dndCopy
           ) {
             setItemGroups(({ itemGroups, itemsToGroupMapping }) => {
-              const activeIndex = active.data?.current?.sortable?.index
+              const activeIndex = itemGroups[containerId]?.findIndex(({id}) => id === active.id)
 
               if (activeIndex === undefined || activeIndex === -1) {
                 return { itemGroups, itemsToGroupMapping }
